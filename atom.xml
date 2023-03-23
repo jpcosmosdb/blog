@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>Japan CSS Support Cosmos DB Blog</title>
+  
+  <subtitle>日本マイクロソフトの Cosmos DB に関するサポート情報のブログです。</subtitle>
+  <link href="https://jpcosmosdb.github.io/blog/atom.xml" rel="self"/>
+  
+  <link href="https://jpcosmosdb.github.io/blog/"/>
+  <updated>2023-03-23T01:07:48.718Z</updated>
+  <id>https://jpcosmosdb.github.io/blog/</id>
+  
+  <author>
+    <name>Azure Cosmos DB CSS Japan</name>
+    
+  </author>
+  
+  <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>Azure Cosmos DB チームのブログを始めました！</title>
+    <link href="https://jpcosmosdb.github.io/blog/Information/welcome/"/>
+    <id>https://jpcosmosdb.github.io/blog/Information/welcome/</id>
+    <published>2023-03-20T08:00:00.000Z</published>
+    <updated>2023-03-23T01:07:48.718Z</updated>
+    
+    <content type="html"><![CDATA[<p>こんにちは。<br>Azure Cosmos DB チームのブログを始めました！</p><p>私たちのチームでは、Azure Cosmos DB に関するサポートを行っており、Azure Cosmos DB に関する情報を発信していきたいと考えております。</p><span id="more"></span><p>本ブログの情報が少しでも皆様のお役に立てれば幸いでございます。<br>何卒宜しくお願い致します。</p>]]></content>
+    
+    
+    <summary type="html">&lt;p&gt;こんにちは。&lt;br&gt;Azure Cosmos DB チームのブログを始めました！&lt;/p&gt;
+&lt;p&gt;私たちのチームでは、Azure Cosmos DB に関するサポートを行っており、Azure Cosmos DB に関する情報を発信していきたいと考えております。&lt;/p&gt;</summary>
+    
+    
+    
+    <category term="Information" scheme="https://jpcosmosdb.github.io/blog/categories/Information/"/>
+    
+    
+    <category term="Greetings" scheme="https://jpcosmosdb.github.io/blog/tags/Greetings/"/>
+    
+  </entry>
+  
+</feed>
