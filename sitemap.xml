@@ -4,14 +4,28 @@
   <url>
     <loc>https://jpcosmosdb.github.io/blog/Information/welcome/</loc>
     
-    <lastmod>2023-03-23</lastmod>
+    <lastmod>2023-03-24</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://jpcosmosdb.github.io/blog/CosmosDB/%E6%83%85%E5%A0%B1%E6%8E%A1%E5%8F%96/Cosmos-DB-restorerequest/</loc>
+    
+    <lastmod>2023-03-24</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://jpcosmosdb.github.io/blog/CosmosDB/%E6%83%85%E5%A0%B1%E6%8E%A1%E5%8F%96/Cosmos-DB-basicinformationtocollect/</loc>
+    
+    <lastmod>2023-03-24</lastmod>
     
   </url>
   
 
   <url>
     <loc>https://jpcosmosdb.github.io/blog</loc>
-    <lastmod>2023-03-23</lastmod>
+    <lastmod>2023-03-24</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
@@ -19,7 +33,42 @@
   
   <url>
     <loc>https://jpcosmosdb.github.io/blog/tags/Greetings/</loc>
-    <lastmod>2023-03-23</lastmod>
+    <lastmod>2023-03-24</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://jpcosmosdb.github.io/blog/tags/NoSQL/</loc>
+    <lastmod>2023-03-24</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://jpcosmosdb.github.io/blog/tags/MongoDB/</loc>
+    <lastmod>2023-03-24</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://jpcosmosdb.github.io/blog/tags/Cassandra/</loc>
+    <lastmod>2023-03-24</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://jpcosmosdb.github.io/blog/tags/Gremlin/</loc>
+    <lastmod>2023-03-24</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://jpcosmosdb.github.io/blog/tags/Table/</loc>
+    <lastmod>2023-03-24</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
@@ -28,7 +77,21 @@
   
   <url>
     <loc>https://jpcosmosdb.github.io/blog/categories/Information/</loc>
-    <lastmod>2023-03-23</lastmod>
+    <lastmod>2023-03-24</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://jpcosmosdb.github.io/blog/categories/Cosmos-DB/</loc>
+    <lastmod>2023-03-24</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://jpcosmosdb.github.io/blog/categories/Cosmos-DB/%E6%83%85%E5%A0%B1%E6%8E%A1%E5%8F%96/</loc>
+    <lastmod>2023-03-24</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>

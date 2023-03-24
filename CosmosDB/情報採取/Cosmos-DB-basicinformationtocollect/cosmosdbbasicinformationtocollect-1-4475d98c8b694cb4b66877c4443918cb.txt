@@ -1,0 +1,31 @@
+
+#基本情報
+
+1.Subscription Id:  サブスクリプション ID 
+2.Cosmos DB Account 名
+3.Database 名
+4.Container 名 
+5.Cosmos DB API (NoSQL/MongoDB/Table/Gremlin/Cassandra) 
+6.本番環境 (Yes/No) 
+
+#エラーの情報
+
+1. エラーが発生した場合の詳細な時間 (日本時間の場合その旨明記。もしくは UTC 時間）
+2. Activity ID ならびにスタックトレース含むエラーメッセージ　
+　　なお、本情報は画像のみでなくテキスト形式もあわせて送付ください。 Activity ID が不明な場合、Activity ID の項目を参照ください。 
+3. 事象の発生頻度。また以前動作していたか。
+4. （お気づきの場合) エラーの発生契機  
+5. エラーが発生するまでの手順 
+　　　毎回事象が発生する場合、エラーが発生するまでの手順を PSR で採取ください
+    https://support.microsoft.com/en-us/help/22878/windows-10-record-steps  
+ 
+6.  (可能であれば) アプリケーションからでなくポータルからの操作で同様にエラーが発生するか
+
+
+#Client ・Application 情報
+
+1. Cosmos DB に接続しているサービス (例:  Azure Functions / Azure Web App Service / Azure Kubernetes Service (AKS) , 他)   　　
+2. Cosmos DB SDK とそのバージョン情報 (.Net/.Net Core/Java/Node.js/Python 他)
+3. 事象が発生する最小単位のコードおよびクエリ　(内容によってはサンプルデータ) 
+4.  (アプリケーションで Diagnostics を取得している場合)  Diagnostics  *SDK により取得方法異なります。
+

@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>Cosmos DB 基本情報採取 | Japan CSS Support Cosmos DB Blog</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="こんにちは。Cosmos DB サポートチームです。 本記事では Cosmos DB のトラブルシュートの際に必要となる情報を案内します。 問題やご相談いただく内容により必要となる情報は異なってまいりますが、今回は共通して必要となる情報について案内します。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Cosmos DB 基本情報採取">
+<meta property="og:url" content="https://jpcosmosdb.github.io/blog/CosmosDB/%E6%83%85%E5%A0%B1%E6%8E%A1%E5%8F%96/Cosmos-DB-basicinformationtocollect/index.html">
+<meta property="og:site_name" content="Japan CSS Support Cosmos DB Blog">
+<meta property="og:description" content="こんにちは。Cosmos DB サポートチームです。 本記事では Cosmos DB のトラブルシュートの際に必要となる情報を案内します。 問題やご相談いただく内容により必要となる情報は異なってまいりますが、今回は共通して必要となる情報について案内します。">
+<meta property="og:locale" content="ja_JP">
+<meta property="og:image" content="https://jpcosmosdb.github.io/blog/CosmosDB/%E6%83%85%E5%A0%B1%E6%8E%A1%E5%8F%96/Cosmos-DB-basicinformationtocollect/1-577ffa1a683a4217adb87b2d7573b11e.png">
+<meta property="og:image" content="https://jpcosmosdb.github.io/blog/CosmosDB/%E6%83%85%E5%A0%B1%E6%8E%A1%E5%8F%96/Cosmos-DB-basicinformationtocollect/1-967aa06703a94f55b20ff0988eb46368.png">
+<meta property="og:image" content="https://jpcosmosdb.github.io/blog/CosmosDB/%E6%83%85%E5%A0%B1%E6%8E%A1%E5%8F%96/Cosmos-DB-basicinformationtocollect/1-986e736d62244c54aadc2575c381a397.png">
+<meta property="og:image" content="https://jpcosmosdb.github.io/blog/CosmosDB/%E6%83%85%E5%A0%B1%E6%8E%A1%E5%8F%96/Cosmos-DB-basicinformationtocollect/1-03aadcebb879419ca9f78e554f3c9ea7.png">
+<meta property="og:image" content="https://jpcosmosdb.github.io/blog/CosmosDB/%E6%83%85%E5%A0%B1%E6%8E%A1%E5%8F%96/Cosmos-DB-basicinformationtocollect/1-70e2c3f3c1e74c3eae1b1bdea4f52028.png">
+<meta property="og:image" content="https://jpcosmosdb.github.io/blog/CosmosDB/%E6%83%85%E5%A0%B1%E6%8E%A1%E5%8F%96/Cosmos-DB-basicinformationtocollect/1-a962ac15631049a8af1f3b0b26a60b0c.png">
+<meta property="og:image" content="https://jpcosmosdb.github.io/blog/CosmosDB/%E6%83%85%E5%A0%B1%E6%8E%A1%E5%8F%96/Cosmos-DB-basicinformationtocollect/1-f347aa6a2a6a4752b3234007b5c84aa0.png">
+<meta property="og:image" content="https://jpcosmosdb.github.io/blog/CosmosDB/%E6%83%85%E5%A0%B1%E6%8E%A1%E5%8F%96/Cosmos-DB-basicinformationtocollect/1-c13591f5f82141d0bf75f8fc00c77a5d.png">
+<meta property="og:image" content="https://jpcosmosdb.github.io/blog/CosmosDB/%E6%83%85%E5%A0%B1%E6%8E%A1%E5%8F%96/Cosmos-DB-basicinformationtocollect/1-192dfbd57fb84b41be1c158e8bad3232.png">
+<meta property="og:image" content="https://jpcosmosdb.github.io/blog/CosmosDB/%E6%83%85%E5%A0%B1%E6%8E%A1%E5%8F%96/Cosmos-DB-basicinformationtocollect/1-fe1b060f52584438a7425a749ed444b9.png">
+<meta property="article:published_time" content="2023-03-20T06:00:00.000Z">
+<meta property="article:modified_time" content="2023-03-24T03:43:41.627Z">
+<meta property="article:author" content="Azure Cosmos DB CSS Japan">
+<meta property="article:tag" content="NoSQL">
+<meta property="article:tag" content="MongoDB">
+<meta property="article:tag" content="Cassandra">
+<meta property="article:tag" content="Gremlin">
+<meta property="article:tag" content="Table">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://jpcosmosdb.github.io/blog/CosmosDB/%E6%83%85%E5%A0%B1%E6%8E%A1%E5%8F%96/Cosmos-DB-basicinformationtocollect/1-577ffa1a683a4217adb87b2d7573b11e.png">
+  
+    <link rel="alternate" href="../../../atom.xml" title="Japan CSS Support Cosmos DB Blog" type="application/atom+xml">
+  
+
+  <link rel="icon" href="../../../favicon.ico">
+  <link rel="apple-touch-icon" sizes="180x180" href="../../../apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="../../../favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="../../../favicon-16x16.png">
+  <link rel="manifest" href="../../../site.webmanifest">
+  <link rel="mask-icon" href="../../../safari-pinned-tab.svg" color="#5bbad5">
+  <meta name="msapplication-TileColor" content="#ffffff">
+  <meta name="theme-color" content="#ffffff">
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  
+<link rel="stylesheet" href="../../../css/style.css">
+
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="site-header-logo"></div>
+  <div id="site-header-blog-wrapper"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        <div id="ms-logo"></div>
+        
+          <a class="main-nav-link" href="/blog/">Home</a>
+        
+          <a class="main-nav-link" href="/blog/archives">Archives</a>
+        
+        <a class="main-nav-link" target="_blank" rel="noopener" href="https://cssjpn.github.io/">サポート情報</a>
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="../../../atom.xml" title="RSSフィード"></a>
+        
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//www.bing.com/search" method="get" accept-charset="UTF-8" name="bing-search" onsubmit="var f=this;if(f['q'].value){var searchUrl =  'https://www.bing.com/search?q=' +  encodeURIComponent(f['q'].value + ' site:' + f['sitesearch'].value) ;window.open(searchUrl, 'blank') };return false;" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="検索"><button type="submit" id="nav-search-btn" class="search-form-submit"></button><input type="hidden" name="sitesearch" value="https://jpcosmosdb.github.io/blog"></form>
+      </div>
+    </div>
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="../../../index.html" id="logo">Japan CSS Support Cosmos DB Blog</a>
+      </h1>
+      
+        <h2 id="subtitle-wrap">
+          <a href="../../../index.html" id="subtitle">日本マイクロソフトの Cosmos DB に関するサポート情報のブログです。</a>
+        </h2>
+      
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-CosmosDB/情報採取/Cosmos-DB-basicinformationtocollect" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    
+    
+      <header class="article-header-single">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Cosmos DB 基本情報採取
+    </h1>
+  
+
+      </header>
+      <div class="article-share">
+        Last Update: 
+        <a href="" class="article-date-single">
+  <time datetime="2023-03-20T06:00:00.000Z" itemprop="datePublished">2023-03-20</time>
+</a>
+        
+  <!-- <div class="article-category">
+    <a class="article-category-link" href="../../../categories/Cosmos-DB/">Cosmos DB</a>►<a class="article-category-link" href="../../../categories/Cosmos-DB/%E6%83%85%E5%A0%B1%E6%8E%A1%E5%8F%96/">情報採取</a>
+  </div> -->
+
+        
+        <a href="https://github.com/jpcosmosdb/blog/issues/new?title=&body=%0A%0A---%0A%0A%23%23%23%23+Document+Details%0A%0A%E2%9A%A0+*Do+not+edit+this+section.%0A%0A*+ID%3A+dbf60bf7-28ae-51e2-aebe-0aa3eeeb0ed1%0A*+%E5%AF%BE%E8%B1%A1%E8%A8%98%E4%BA%8B%3A+%5BCosmos+DB+%E5%9F%BA%E6%9C%AC%E6%83%85%E5%A0%B1%E6%8E%A1%E5%8F%96%5D%28https%3A%2F%2Fjpcosmosdb.github.io%2Fblog%2FCosmosDB%2F%E6%83%85%E5%A0%B1%E6%8E%A1%E5%8F%96%2FCosmos-DB-basicinformationtocollect%2F%29%0A*+Content+Source%3A+%5Barticles%2FCosmosDB%2F%E6%83%85%E5%A0%B1%E6%8E%A1%E5%8F%96%2FCosmos-DB-basicinformationtocollect.md%5D%28https%3A%2F%2Fgithub.com%2Fjpcosmosdb%2Fblog%2Fblob%2Fmain%2Farticles%2FCosmosDB%2F%E6%83%85%E5%A0%B1%E6%8E%A1%E5%8F%96%2FCosmos-DB-basicinformationtocollect.md%29%0A*+Author%3A+" class="article-github-issue-link" target="_blank" rel="noopener noreferrer">feedback</a>
+        
+        <a data-url="https://jpcosmosdb.github.io/blog/CosmosDB/%E6%83%85%E5%A0%B1%E6%8E%A1%E5%8F%96/Cosmos-DB-basicinformationtocollect/" data-id="clflzzr6100010nobh3ve7xoz" class="article-share-link">共有</a>
+      </div>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>こんにちは。Cosmos DB サポートチームです。</p>
+<p>本記事では Cosmos DB のトラブルシュートの際に必要となる情報を案内します。</p>
+<p>問題やご相談いただく内容により必要となる情報は異なってまいりますが、今回は共通して必要となる情報について案内します。</p>
+<span id="more"></span>
+<h1 id="基本情報"><a href="#基本情報" class="headerlink" title="基本情報"></a>基本情報</h1><p>1.Subscription Id:  サブスクリプション ID</p>
+<p>2.Cosmos DB Account 名</p>
+<p>3.Database 名</p>
+<p>4.Container 名</p>
+<p>5.Cosmos DB API (NoSQL/MongoDB/Table/Gremlin/Cassandra)</p>
+<p>6.本番環境 (Yes/No)</p>
+<h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a><span style="text-decoration:underline">参考</span></h3><p><img src="/blog/CosmosDB/%E6%83%85%E5%A0%B1%E6%8E%A1%E5%8F%96/Cosmos-DB-basicinformationtocollect/1-577ffa1a683a4217adb87b2d7573b11e.png"><br><img src="/blog/CosmosDB/%E6%83%85%E5%A0%B1%E6%8E%A1%E5%8F%96/Cosmos-DB-basicinformationtocollect/1-967aa06703a94f55b20ff0988eb46368.png"></p>
+<h1 id="エラーの情報"><a href="#エラーの情報" class="headerlink" title="エラーの情報"></a>エラーの情報</h1><ol>
+<li><p>エラーが発生した場合の詳細な時間 (日本時間の場合その旨明記。もしくは UTC 時間）    </p>
+</li>
+<li><p>Activity ID ならびにスタックトレース含むエラーメッセージ。なお、本情報は画像のみでなくテキスト形式もあわせて送付ください。<br>Activity ID が不明な場合、Activity ID の項目を参照ください。</p>
+</li>
+<li><p>事象の発生頻度。また以前動作していたか。</p>
+</li>
+<li><p>(お気づきの場合) エラーの発生契機</p>
+</li>
+<li><p>エラーが発生するまでの手順<br>毎回事象が発生する場合、エラーが発生するまでの手順を PSR で採取ください。<br><a target="_blank" rel="noopener" href="https://support.microsoft.com/en-us/help/22878/windows-10-record-steps">https://support.microsoft.com/en-us/help/22878/windows-10-record-steps</a></p>
+</li>
+<li><p> (可能であれば) アプリケーションからでなくポータルからの操作で同様にエラーが発生するかお知らせください。</p>
+</li>
+</ol>
+<h1 id="Client-・Application-情報"><a href="#Client-・Application-情報" class="headerlink" title="Client ・Application 情報"></a>Client ・Application 情報</h1><ol>
+<li>Cosmos DB に接続しているサービス (例:  Azure Functions / Azure Web App Service / <span lang="en-US" style="background-color:white">Azure Kubernetes Service (AKS)</span> , 他)</li>
+</ol>
+<div class="alert is-info"><p class="alert-title">Note</p><p>問題の内容に応じて利用サービスの Subscription Id や名前などの情報を依頼することがございます。</p><p>また問題によっては該当サービス観点でのお問い合わせを相談させていただくことがございます。</p></div>
+<ol start="2">
+<li><p>Cosmos DB SDK とそのバージョン情報 (.Net/.Net Core/Java/Node.js/Python 他)</p>
+</li>
+<li><p>事象が発生する最小単位のコードおよびクエリ(内容によってはサンプルデータ)</p>
+</li>
+<li><p>(アプリケーションで Diagnostics を取得している場合)  Diagnostics<br> *SDK により取得方法異なります。</p>
+</li>
+</ol>
+<h2 id="Activity-ID"><a href="#Activity-ID" class="headerlink" title="Activity ID"></a>Activity ID</h2><p>Cosmos DB に接続・操作するアプリケーションのログで Activity ID を取得していない場合、対象の Cosmos DB アカウントに対して診断設定をすることで Log Analytics 等から Activity ID 含む診断ログの取得が可能です。</p>
+<p>診断ログの設定方法は <a target="_blank" rel="noopener" href="https://learn.microsoft.com/ja-jp/azure/cosmos-db/monitor-resource-logs?tabs=azure-portal">https://learn.microsoft.com/ja-jp/azure/cosmos-db/monitor-resource-logs?tabs=azure-portal</a> を参照ください。</p>
+<p>下記はリクエストの種類 (Query / Data Plane / Control Plane) ならびに診断ログの設定 (Azure diagnostics or Resource specific) に応じたログ取得のクエリならびにその出力結果（サンプル）となります。</p>
+<div class="alert is-info"><p class="alert-title">Note</p><p>Azure diagnostics を選択すると、各種の診断情報が１つのテーブル（AzureDiagnostics) に出力されます。各種の診断は、 Category カラムを指定して個別に抽出が可能です。</p><p>一方で、 Resource specific を選択すると、各種の診断情報がそれぞれ別のテーブルに出力されます。</p></div>
+<h3 id="Query-Requests"><a href="#Query-Requests" class="headerlink" title="Query Requests"></a><span style="text-decoration:underline">Query Requests</span></h3><p><strong>Azure diagnostics</strong></p>
+<p><img src="/blog/CosmosDB/%E6%83%85%E5%A0%B1%E6%8E%A1%E5%8F%96/Cosmos-DB-basicinformationtocollect/1-986e736d62244c54aadc2575c381a397.png"></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">AzureDiagnostics</span><br><span class="line">| where ResourceProvider ==&quot;MICROSOFT.DOCUMENTDB&quot; and Category == &quot;QueryRuntimeStatistics&quot;</span><br><span class="line">| project TimeGenerated, activityId_g, querytext_s,databasename_s,collectionname_s,ResourceId,ResourceType,regionname_s,authtype_s,numberofrowsreturned_s,queryexecutionstatus_s,userAgent_s,partialipaddress_s,partitionKeyRangeId_s</span><br></pre></td></tr></table></figure>
+
+<p><img src="/blog/CosmosDB/%E6%83%85%E5%A0%B1%E6%8E%A1%E5%8F%96/Cosmos-DB-basicinformationtocollect/1-03aadcebb879419ca9f78e554f3c9ea7.png"></p>
+<p> <strong>Resource specific</strong><br> <img src="/blog/CosmosDB/%E6%83%85%E5%A0%B1%E6%8E%A1%E5%8F%96/Cosmos-DB-basicinformationtocollect/1-70e2c3f3c1e74c3eae1b1bdea4f52028.png"></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">CDBQueryRuntimeStatistics </span><br><span class="line">|project TimeGenerated,ActivityId,AccountName,DatabaseName,CollectionName,PartitionKeyRangeId,QueryText,SourceSystem,Type,_ResourceId</span><br></pre></td></tr></table></figure>
+
+<p><img src="/blog/CosmosDB/%E6%83%85%E5%A0%B1%E6%8E%A1%E5%8F%96/Cosmos-DB-basicinformationtocollect/1-a962ac15631049a8af1f3b0b26a60b0c.png"><br></p>
+<h3 id="Data-plane-requests"><a href="#Data-plane-requests" class="headerlink" title="Data plane requests"></a><span style="text-decoration:underline">Data plane requests</span></h3><p><strong>Azure diagnostics</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">AzureDiagnostics</span><br><span class="line">| where ResourceProvider==&quot;MICROSOFT.DOCUMENTDB&quot; and Category==&quot;DataPlaneRequests&quot;</span><br><span class="line">//| where statusCode_s !in(200,201)</span><br><span class="line">| project TimeGenerated,activityId_g,statusCode_s,ResourceId,requestCharge_s,ResourceType,OperationName,requestResourceType_s,connectionMode_s,userAgent_s,clientIpAddress_s,duration_s,requestLength_s,responseLength_s,regionname_s,databasename_s</span><br></pre></td></tr></table></figure>
+
+<p><img src="/blog/CosmosDB/%E6%83%85%E5%A0%B1%E6%8E%A1%E5%8F%96/Cosmos-DB-basicinformationtocollect/1-f347aa6a2a6a4752b3234007b5c84aa0.png"></p>
+<p><strong>Resource specific</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">CDBDataPlaneRequests</span><br><span class="line">| project TimeGenerated,ActivityId,StatusCode,_ResourceId,RequestCharge,OperationName,RequestResourceType,RequestResourceId,ConnectionMode,UserAgent,ClientIpAddress,DurationMs,RequestLength,ResponseLength,RegionName,DatabaseName,CollectionName,PartitionId,KeyType,AuthTokenType</span><br></pre></td></tr></table></figure>
+
+<p><img src="/blog/CosmosDB/%E6%83%85%E5%A0%B1%E6%8E%A1%E5%8F%96/Cosmos-DB-basicinformationtocollect/1-c13591f5f82141d0bf75f8fc00c77a5d.png"><br></p>
+<h3 id="Control-plane-requests"><a href="#Control-plane-requests" class="headerlink" title="Control plane requests"></a><span style="text-decoration:underline">Control plane requests</span></h3><p><strong>Azure diagnostics</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">AzureDiagnostics</span><br><span class="line">| where ResourceProvider==&quot;MICROSOFT.DOCUMENTDB&quot; and Category==&quot;ControlPlaneRequests&quot;</span><br><span class="line">| project TimeGenerated,activityId_g,statusCode_s,ResourceId,requestCharge_s,ResourceType,OperationName,requestResourceType_s,connectionMode_s,userAgent_s,clientIpAddress_s,duration_s,requestLength_s,responseLength_s,regionname_s,databasename_s</span><br></pre></td></tr></table></figure>
+
+<p> <img src="/blog/CosmosDB/%E6%83%85%E5%A0%B1%E6%8E%A1%E5%8F%96/Cosmos-DB-basicinformationtocollect/1-192dfbd57fb84b41be1c158e8bad3232.png"></p>
+<p><strong>Resource specific</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">CDBControlPlaneRequests</span><br><span class="line">|project TimeGenerated,ActivityId,AccountName,OperationName,OperationType,HttpStatusCode,Result,HttpMethod,ApiKind,ApiKindResourceType,ResourceUri,ResourceDetails,Type,_ResourceId</span><br></pre></td></tr></table></figure>
+
+<p><img src="/blog/CosmosDB/%E6%83%85%E5%A0%B1%E6%8E%A1%E5%8F%96/Cosmos-DB-basicinformationtocollect/1-fe1b060f52584438a7425a749ed444b9.png"></p>
+<p><span style="text-decoration:underline">補足</span></p>
+<p>上記採取情報をテキスト形式でもまとめています。(診断ログの項目除く)</p>
+<p>必要に応じてこちらもご活用ください。</p>
+<p><a href="/blog/CosmosDB/%E6%83%85%E5%A0%B1%E6%8E%A1%E5%8F%96/Cosmos-DB-basicinformationtocollect/cosmosdbbasicinformationtocollect-1-4475d98c8b694cb4b66877c4443918cb.txt">cosmosdbbasicinformationtocollect.txt</a></p>
+
+      
+      
+        <div class="article-disclaimer">
+        
+          <p>※本情報の内容（添付文書、リンク先などを含む）は、作成日時点でのものであり、予告なく変更される場合があります。</p>
+        
+        </div>
+      
+    </div>
+    <footer class="article-footer">
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="../../../tags/Cassandra/" rel="tag">Cassandra</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="../../../tags/Gremlin/" rel="tag">Gremlin</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="../../../tags/MongoDB/" rel="tag">MongoDB</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="../../../tags/NoSQL/" rel="tag">NoSQL</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="../../../tags/Table/" rel="tag">Table</a></li></ul>
+
+        
+        <a href="https://github.com/jpcosmosdb/blog/edit/main/articles/CosmosDB/情報採取/Cosmos-DB-basicinformationtocollect.md" class="article-github-edit-link" target="_blank" rel="noopener noreferrer">GitHub で編集</a>
+        
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="../../../Information/welcome/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">次の記事</strong>
+      <div class="article-nav-title">
+        
+          Azure Cosmos DB チームのブログを始めました！
+        
+      </div>
+    </a>
+  
+  
+    <a href="../Cosmos-DB-restorerequest/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">前の記事</strong>
+      <div class="article-nav-title">Cosmos DB 復元リクエストに必要な情報</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">カテゴリ</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="../../../categories/Cosmos-DB/">Cosmos DB</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="../../../categories/Cosmos-DB/%E6%83%85%E5%A0%B1%E6%8E%A1%E5%8F%96/">情報採取</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="../../../categories/Information/">Information</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">最近の投稿</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="../../../Information/welcome/">Azure Cosmos DB チームのブログを始めました！</a>
+          </li>
+        
+          <li>
+            <a href="">Cosmos DB 基本情報採取</a>
+          </li>
+        
+          <li>
+            <a href="../Cosmos-DB-restorerequest/">Cosmos DB 復元リクエストに必要な情報</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">タグ</h3>
+    <div class="widget">
+      <!-- <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="../../../tags/Cassandra/" rel="tag">Cassandra</a></li><li class="tag-list-item"><a class="tag-list-link" href="../../../tags/Greetings/" rel="tag">Greetings</a></li><li class="tag-list-item"><a class="tag-list-link" href="../../../tags/Gremlin/" rel="tag">Gremlin</a></li><li class="tag-list-item"><a class="tag-list-link" href="../../../tags/MongoDB/" rel="tag">MongoDB</a></li><li class="tag-list-item"><a class="tag-list-link" href="../../../tags/NoSQL/" rel="tag">NoSQL</a></li><li class="tag-list-item"><a class="tag-list-link" href="../../../tags/Table/" rel="tag">Table</a></li></ul>  -->
+      
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="../../../tags/Cassandra/" rel="tag">Cassandra</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../tags/Greetings/" rel="tag">Greetings</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../tags/Gremlin/" rel="tag">Gremlin</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../tags/MongoDB/" rel="tag">MongoDB</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../tags/NoSQL/" rel="tag">NoSQL</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../tags/Table/" rel="tag">Table</a><span class="tag-list-count">2</span></li></ul> 
+      <!-- <ul class="tag-list"></ul> -->
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">アーカイブ</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="../../../archives/2023/03/">2023 / 03</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">タグクラウド</h3>
+    <div class="widget tagcloud">
+      <a href="../../../tags/Cassandra/" style="font-size: 20px;">Cassandra</a> <a href="../../../tags/Greetings/" style="font-size: 10px;">Greetings</a> <a href="../../../tags/Gremlin/" style="font-size: 20px;">Gremlin</a> <a href="../../../tags/MongoDB/" style="font-size: 20px;">MongoDB</a> <a href="../../../tags/NoSQL/" style="font-size: 20px;">NoSQL</a> <a href="../../../tags/Table/" style="font-size: 20px;">Table</a>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2023 Azure Cosmos DB CSS Japan<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="../../../index.html" class="mobile-nav-link">Home</a>
+  
+    <a href="../../../archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+<script src="../../../js/script.js"></script>
+
+
+
+
+  </div>
+</body>
+</html>
