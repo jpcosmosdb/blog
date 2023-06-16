@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>Cosmos DB における RTO, RPO, フェールオーバーの考え方 | Japan CSS Support Cosmos DB Blog</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="こんにちは。Cosmos DB サポートチームの星井と申します。 この記事では、Cosmos DB における RTO, RPO, フェールオーバー（特にサーバー側で処理されるもの）について、典型的な事例をもとに説明します。Cosmos DB の可用性に関する設定や運用設計に際し、これらの情報がお役に立てましたら幸いです。 本記事は、以下の弊社公開記事、弊社アーキテクト&#x2F;開発者によるビデオを参考に執">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Cosmos DB における RTO, RPO, フェールオーバーの考え方">
+<meta property="og:url" content="https://jpcosmosdb.github.io/blog/CosmosDB/Availability/failover/index.html">
+<meta property="og:site_name" content="Japan CSS Support Cosmos DB Blog">
+<meta property="og:description" content="こんにちは。Cosmos DB サポートチームの星井と申します。 この記事では、Cosmos DB における RTO, RPO, フェールオーバー（特にサーバー側で処理されるもの）について、典型的な事例をもとに説明します。Cosmos DB の可用性に関する設定や運用設計に際し、これらの情報がお役に立てましたら幸いです。 本記事は、以下の弊社公開記事、弊社アーキテクト&#x2F;開発者によるビデオを参考に執">
+<meta property="og:locale" content="ja_JP">
+<meta property="og:image" content="https://jpcosmosdb.github.io/blog/CosmosDB/Availability/failover/scenario_normal.png">
+<meta property="og:image" content="https://jpcosmosdb.github.io/blog/CosmosDB/Availability/failover/scenario_outage.png">
+<meta property="og:image" content="https://jpcosmosdb.github.io/blog/CosmosDB/Availability/failover/scenario_sdk_detect.png">
+<meta property="og:image" content="https://jpcosmosdb.github.io/blog/CosmosDB/Availability/failover/scenario_completed.png">
+<meta property="og:image" content="https://jpcosmosdb.github.io/blog/CosmosDB/Availability/failover/gracefullness.png">
+<meta property="article:published_time" content="2023-05-22T02:00:00.000Z">
+<meta property="article:modified_time" content="2023-06-16T02:54:39.711Z">
+<meta property="article:author" content="Azure Cosmos DB CSS Japan">
+<meta property="article:tag" content="NoSQL">
+<meta property="article:tag" content="Availavility">
+<meta property="article:tag" content="Failover">
+<meta property="article:tag" content="Durability">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://jpcosmosdb.github.io/blog/CosmosDB/Availability/failover/scenario_normal.png">
+  
+    <link rel="alternate" href="../../../atom.xml" title="Japan CSS Support Cosmos DB Blog" type="application/atom+xml">
+  
+
+  <link rel="icon" href="../../../favicon.ico">
+  <link rel="apple-touch-icon" sizes="180x180" href="../../../apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="../../../favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="../../../favicon-16x16.png">
+  <link rel="manifest" href="../../../site.webmanifest">
+  <link rel="mask-icon" href="../../../safari-pinned-tab.svg" color="#5bbad5">
+  <meta name="msapplication-TileColor" content="#ffffff">
+  <meta name="theme-color" content="#ffffff">
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  
+<link rel="stylesheet" href="../../../css/style.css">
+
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="site-header-logo"></div>
+  <div id="site-header-blog-wrapper"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        <div id="ms-logo"></div>
+        
+          <a class="main-nav-link" href="/blog/">Home</a>
+        
+          <a class="main-nav-link" href="/blog/archives">Archives</a>
+        
+        <a class="main-nav-link" target="_blank" rel="noopener" href="https://cssjpn.github.io/">サポート情報</a>
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="../../../atom.xml" title="RSSフィード"></a>
+        
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//www.bing.com/search" method="get" accept-charset="UTF-8" name="bing-search" onsubmit="var f=this;if(f['q'].value){var searchUrl =  'https://www.bing.com/search?q=' +  encodeURIComponent(f['q'].value + ' site:' + f['sitesearch'].value) ;window.open(searchUrl, 'blank') };return false;" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="検索"><button type="submit" id="nav-search-btn" class="search-form-submit"></button><input type="hidden" name="sitesearch" value="https://jpcosmosdb.github.io/blog"></form>
+      </div>
+    </div>
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="../../../index.html" id="logo">Japan CSS Support Cosmos DB Blog</a>
+      </h1>
+      
+        <h2 id="subtitle-wrap">
+          <a href="../../../index.html" id="subtitle">日本マイクロソフトの Cosmos DB に関するサポート情報のブログです。</a>
+        </h2>
+      
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-CosmosDB/Availability/failover" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    
+    
+      <header class="article-header-single">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Cosmos DB における RTO, RPO, フェールオーバーの考え方
+    </h1>
+  
+
+      </header>
+      <div class="article-share">
+        Last Update: 
+        <a href="" class="article-date-single">
+  <time datetime="2023-05-22T02:00:00.000Z" itemprop="datePublished">2023-05-22</time>
+</a>
+        
+  <!-- <div class="article-category">
+    <a class="article-category-link" href="../../../categories/Cosmos-DB/">Cosmos DB</a>►<a class="article-category-link" href="../../../categories/Cosmos-DB/Availability/">Availability</a>
+  </div> -->
+
+        
+        <a href="https://github.com/jpcosmosdb/blog/issues/new?title=&body=%0A%0A---%0A%0A%23%23%23%23+Document+Details%0A%0A%E2%9A%A0+*Do+not+edit+this+section.%0A%0A*+ID%3A+777f1714-e090-5146-acdf-c8c26139c875%0A*+%E5%AF%BE%E8%B1%A1%E8%A8%98%E4%BA%8B%3A+%5BCosmos+DB+%E3%81%AB%E3%81%8A%E3%81%91%E3%82%8B+RTO%2C+RPO%2C+%E3%83%95%E3%82%A7%E3%83%BC%E3%83%AB%E3%82%AA%E3%83%BC%E3%83%90%E3%83%BC%E3%81%AE%E8%80%83%E3%81%88%E6%96%B9%5D%28https%3A%2F%2Fjpcosmosdb.github.io%2Fblog%2FCosmosDB%2FAvailability%2Ffailover%2F%29%0A*+Content+Source%3A+%5Barticles%2FCosmosDB%2FAvailability%2Ffailover.md%5D%28https%3A%2F%2Fgithub.com%2Fjpcosmosdb%2Fblog%2Fblob%2Fmain%2Farticles%2FCosmosDB%2FAvailability%2Ffailover.md%29%0A*+Author%3A+" class="article-github-issue-link" target="_blank" rel="noopener noreferrer">feedback</a>
+        
+        <a data-url="https://jpcosmosdb.github.io/blog/CosmosDB/Availability/failover/" data-id="clixz894x00010nqm26sx9aa9" class="article-share-link">共有</a>
+      </div>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>こんにちは。Cosmos DB サポートチームの星井と申します。</p>
+<p>この記事では、Cosmos DB における RTO, RPO, フェールオーバー（特にサーバー側で処理されるもの）について、典型的な事例をもとに説明します。<br>Cosmos DB の可用性に関する設定や運用設計に際し、これらの情報がお役に立てましたら幸いです。</p>
+<p>本記事は、以下の弊社公開記事、弊社アーキテクト/開発者によるビデオを参考に執筆いたしました。本記事について詳細を確認されたい場合、ご参考になれば幸いです。</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://learn.microsoft.com/ja-jp/azure/cosmos-db/high-availability">Azure Cosmos DB を使用して高可用性を実現する</a></li>
+<li><a target="_blank" rel="noopener" href="https://youtu.be/fg8n5SuUwRI">Architecting Azure Cosmos DB for High Availability - Global User Group Dec. 2022</a></li>
+<li><a target="_blank" rel="noopener" href="https://youtu.be/G5R2tr1gvkY">Forced Failover in Azure Cosmos DB - Episode 46</a></li>
+</ul>
+<span id="more"></span>
+
+<h2 id="本記事で扱う-Cosmos-DB-の構成とシナリオ"><a href="#本記事で扱う-Cosmos-DB-の構成とシナリオ" class="headerlink" title="本記事で扱う Cosmos DB の構成とシナリオ"></a>本記事で扱う Cosmos DB の構成とシナリオ</h2><p>以下のような複数リージョン、単一書き込みリージョンの構成にて、サービスマネージド フェールオーバーを有効化している場合を考えます。<br>この構成では、各リージョンのクライアントからの書き込みは単一の書き込みリージョンに向けて実行されます。一方で読み取りは、クライアントが存在するリージョンに設定することでレイテンシ面で有利になります。<br><img src="/blog/CosmosDB/Availability/failover/scenario_normal.png" alt="構成"></p>
+<p>ここで、書き込みリージョンで障害が発生してしまった場合を考えます。<br>この時、障害が発生したリージョンへのリクエストは一部ないしはすべて失敗することになります。<br>一方で Cosmos DB サービスは、リージョン レベルの大規模障害を検知すると当該リージョンをオフラインに設定し、フェールオーバーを開始します。<br><img src="/blog/CosmosDB/Availability/failover/scenario_outage.png" alt="障害発生"></p>
+<p>また、Cosmos DB の SDK は、リージョン障害を検知すると、リクエストの宛先をオンラインのリージョンに切り替えます。切り替え対象となる読み取りリージョンは当該アカウントで事前に読み取りリージョンとして追加しているリージョンとなります。<br><img src="/blog/CosmosDB/Availability/failover/scenario_sdk_detect.png" alt="障害検知"></p>
+<div class="alert is-info"><p class="alert-title">Note</p><p>Cosmos DB SDK のフェールオーバーの挙動や設定について詳細は、<a target="_blank" rel="noopener" href="https://learn.microsoft.com/ja-jp/azure/cosmos-db/nosql/troubleshoot-sdk-availability">複数リージョン環境での Azure Cosmos DB SDK の可用性の診断とトラブルシューティング</a> をご覧ください。</p></div>
+<p>Cosmos DB サービスによるフェールオーバーが完了すると、フェールオーバー先のリージョンが書き込みリージョンとなります。<br><img src="/blog/CosmosDB/Availability/failover/scenario_completed.png" alt="フェールオーバー完了"></p>
+<div class="alert is-info"><p class="alert-title">Note</p><p>フェールオーバー完了後、 Region A が自動で再び書き込みリージョンに戻るわけではない点にご注意ください。上の例ですと、 Region A の App からの書き込みリクエストのレイテンシは、リージョン間の通信往復時間を考えると、障害発生前に比べて悪化することになります。</p></div>
+<h2 id="RTO-と-RPO"><a href="#RTO-と-RPO" class="headerlink" title="RTO と RPO"></a>RTO と RPO</h2><p>本記事における RTO と RPO について、以下のように定義します。</p>
+<ul>
+<li>回復時間の目標 (RTO): Azure Cosmos DB に影響を与える停止の開始から完全な可用性への復旧までの時間。</li>
+<li>回復ポイントの目標 (RPO): 正しく復元された最後の書き込みから Azure Cosmos DB に影響を与える停止の開始時刻までの時間。</li>
+</ul>
+<div class="alert is-info"><p class="alert-title">Note</p><p><a target="_blank" rel="noopener" href="https://learn.microsoft.com/ja-jp/azure/cosmos-db/high-availability">Azure Cosmos DB を使用して高可用性を実現する</a></p></div>
+<h2 id="Cosmos-DB-の-RTO"><a href="#Cosmos-DB-の-RTO" class="headerlink" title="Cosmos DB の RTO"></a>Cosmos DB の RTO</h2><p>リージョン障害の発生から、フェールオーバーが開始されるまでの時間について 15 + α 分を目標として製品の開発運用を行っております。<br>上記事例において、障害発生リージョンがオフラインになるまでの目標時間が 15 分であると言い換えることもできます。</p>
+<h2 id="Cosmos-DB-の-RPO"><a href="#Cosmos-DB-の-RPO" class="headerlink" title="Cosmos DB の RPO"></a>Cosmos DB の RPO</h2><p>Cosmos DB アカウントに保管しているデータの RPO は、アカウントに設定しているバックアップの設定や、書き込み処理の整合性レベルにより変動します。</p>
+<h3 id="バックアップ設定について"><a href="#バックアップ設定について" class="headerlink" title="バックアップ設定について"></a>バックアップ設定について</h3><p>バックアップについて、 Cosmos DB では継続的/定期的の2種類のバックアップがあります。既定の設定は定期的バックアップになっています。</p>
+<p>・<a target="_blank" rel="noopener" href="https://learn.microsoft.com/ja-jp/azure/cosmos-db/continuous-backup-restore-introduction">継続的バックアップ</a>では、100 秒ごとに各リージョンがバックアップされます。 RPO は 100 秒となります。<br>・<a target="_blank" rel="noopener" href="https://learn.microsoft.com/ja-jp/azure/cosmos-db/periodic-backup-restore-introduction">定期的なバックアップ</a>では、最小バックアップ間隔は 1  時間です。 RPO は設定次第ですが、最短で 1時間となります。</p>
+<h3 id="整合性レベルについて"><a href="#整合性レベルについて" class="headerlink" title="整合性レベルについて"></a>整合性レベルについて</h3><p>書き込みの整合性レベルは、読み取りリージョンにデータがレプリケーションされるタイミングに影響します。強い (Strong) 整合性レベルは、読み取りリージョンにデータがレプリケーションされた後にクライアント側に成功レスポンスを返すため RPO は 0 になります。<br>それ以外の整合性レベルにおいては、クライアント側への書き込み成功レスポンスが返った後、読み取りリージョンへのレプリケーション完了までに時間差があります。このため、レプリケーションが完了する前に書き込みリージョンで障害が発生し、かつそのデータがバックアップもされていない場合、ロストする可能性はあります。</p>
+<table>
+<thead>
+<tr>
+<th>整合性レベル</th>
+<th>リージョンの停止に対する RPO</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>セッション、一貫性のあるプレフィックス、最終的</td>
+<td>15 分未満</td>
+</tr>
+<tr>
+<td>Bounded staleness</td>
+<td>K および T  （K と T の最小値は 100,000 回の書き込み操作または 300 秒です。）</td>
+</tr>
+<tr>
+<td>Strong</td>
+<td>0</td>
+</tr>
+</tbody></table>
+<div class="alert is-info"><p class="alert-title">Note</p><p><a target="_blank" rel="noopener" href="https://learn.microsoft.com/ja-jp/azure/cosmos-db/high-availability#durability">Azure Cosmos DB を使用して高可用性を実現する</a></p></div>
+<h2 id="Cosmos-DB-のフェールオーバー"><a href="#Cosmos-DB-のフェールオーバー" class="headerlink" title="Cosmos DB のフェールオーバー"></a>Cosmos DB のフェールオーバー</h2><p>Cosmos DB のサーバー側で行われるフェールオーバーには、以下の２種類があります。</p>
+<ul>
+<li>サービスマネージド フェールオーバー</li>
+<li>手動フェールオーバー</li>
+</ul>
+<p>Cosmos DB のフェールオーバーの挙動を理解することは、サービスマネージド フェールオーバーと手動フェールオーバーの違いを理解するのに有用と思いますので紹介します。</p>
+<h3 id="Gracefullness-Check"><a href="#Gracefullness-Check" class="headerlink" title="Gracefullness Check"></a>Gracefullness Check</h3><p>フェールオーバーにおいて、 Cosmos DB 内部では Gracefullness Check という処理が行われています。<br>これは Cosmos DB サービスが、フェールオーバー先で書き込みを受け付け可能にするため、フェールオーバー元のデータをフェールオーバー先に同期させる処理です。</p>
+<div class="alert is-info"><p class="alert-title">Note</p><p>読み取りリージョンのデータは強い整合性レベルの場合を除き、書き込みリージョンに対して古いデータを含んでいる可能性があります。このため、フェールオーバー先で書き込みを受け付け可能にするために、まずフェールオーバー先のデータを最新化する必要があります。</p></div>
+<p>ただし、フェールオーバー元リージョンで障害が発生している場合、以下の図のように一部のパーティションにはアクセスができないことがあります。このようなパーティションに対し、 Cosmos DB サービスは Gracefullness Check をスキップします。すなわち、このようなパーティションに書き込まれたデータは一部ロストする可能性があります。</p>
+<p><img src="/blog/CosmosDB/Availability/failover/gracefullness.png" alt="Gracefullness Check"></p>
+<p>Gracefullness Check について詳細を把握されたい場合、以下の弊社開発者による説明動画をご覧ください。<br><a target="_blank" rel="noopener" href="https://youtu.be/G5R2tr1gvkY?t=885">Forced Failover in Azure Cosmos DB - Episode 46</a></p>
+<h3 id="サービスマネージド-フェールオーバー"><a href="#サービスマネージド-フェールオーバー" class="headerlink" title="サービスマネージド フェールオーバー"></a>サービスマネージド フェールオーバー</h3><p>サービスマネージド フェールオーバーは、 Cosmos DB サービスが起動する、書き込みリージョンを変更する処理です。<br>Cosmos DB アカウントに対してサービスマネージド フェールオーバーを有効化すると、リージョンで障害が発生した際に、 Cosmos DB サービスが自動でフェールオーバーを行います。<br>ポイントとしては、フェールオーバー元リージョンで障害が発生しているため、一部パーティションに対して Gracefullness Check が成功しない可能性があります。この時、 Cosmos DB サービスはそのようなパーティションに対する Gracefullness Check をスキップするため、一部データがロストする可能性があります。</p>
+<p>また、フェールオーバーに要する時間は、データの同期時間に依存します。これは、当該アカウントにて稼働しているパーティションの数や、データの格納量の影響を受けます。</p>
+<p>さらに、リージョンが障害から復旧した後、競合フィードが発生する可能性があります。<br>これは、 書き込み後、別リージョンにレプリケーションされる前に障害が発生してしまったデータが対象となります。<br>言い換えると、Gracefullness Check が行われなかったパーティション内のデータと、フェイルオーバー後の書き込みリージョンに書き込まれたデータの間で競合フィードが発生し得ます。<br>競合が発生したデータについては個別に解決するか否か検討のうえ、必要であれば解決します。</p>
+<div class="alert is-info"><p class="alert-title">Note</p><p><a target="_blank" rel="noopener" href="https://learn.microsoft.com/ja-jp/azure/cosmos-db/conflict-resolution-policies">複数の書き込みリージョンを使用する場合の競合の種類と解決ポリシー</a></p><p><a target="_blank" rel="noopener" href="https://youtu.be/G5R2tr1gvkY?t=1183">Forced Failover in Azure Cosmos DB - Episode 46</a></p></div>
+<h3 id="手動フェールオーバー"><a href="#手動フェールオーバー" class="headerlink" title="手動フェールオーバー"></a>手動フェールオーバー</h3><p>手動フェールオーバーは、ユーザーが起動する、書き込みリージョンを変更する処理です。<br>ポイントとしては、 全てのパーティションについて Gracefullness Check が成功した段階で、フェールオーバーが完了する点になります。このため、障害が現に発生している時の手動フェールオーバーの利用は想定されていません。<br>また手動フェールオーバーを実施するには、マルチリージョン書き込みは無効であることと、複数読み取りリージョンが存在することが前提となります。<br>手動フェールオーバーの用途としては、以下のようなものがあります。</p>
+<h4 id="リージョンが障害から回復した後、書き込みリージョンを戻す"><a href="#リージョンが障害から回復した後、書き込みリージョンを戻す" class="headerlink" title="リージョンが障害から回復した後、書き込みリージョンを戻す"></a>リージョンが障害から回復した後、書き込みリージョンを戻す</h4><p>今回の事例ですと、リージョン B へのフェールオーバーが完了した後、書き込みリージョンはリージョン B になります。<br>その後リージョン A が復旧した際、書き込みリージョンを再度 A に戻すケースが考えられます。このような時、手動フェールオーバーを用います。</p>
+<div class="alert is-info"><p class="alert-title">Note</p><p>例えば、書き込みを行うアプリケーションがリージョン A にしか存在しない場合や、リージョン A のアプリケーションによる書き込み量が多い場合、リージョン B で書き込みを受け付けるのは通信の往復時間を考慮するとレイテンシ面で不利になります。</p></div>
+<h4 id="Cosmos-DB-のリージョン移行"><a href="#Cosmos-DB-のリージョン移行" class="headerlink" title="Cosmos DB のリージョン移行"></a>Cosmos DB のリージョン移行</h4><p>例えば、東日本リージョン単一で稼働する Cosmos DB を西日本単一リージョンに移行したいとします。<br>このとき、以下のような手順でリージョン移行を行うことができます。</p>
+<ol>
+<li>Cosmos DB アカウントに西日本リージョンを読み取りリージョンとして追加する</li>
+<li>手動フェールオーバーを用いて、書き込みリージョンを西日本に変更する</li>
+<li>東日本リージョンを削除する</li>
+</ol>
+<div class="alert is-info"><p class="alert-title">Note</p><p>上記手順は、運用環境での実施の前に、検証環境でご検証ください。</p></div>
+<h4 id="Follow-The-Sun-モデルのビジネス対応"><a href="#Follow-The-Sun-モデルのビジネス対応" class="headerlink" title="Follow The Sun モデルのビジネス対応"></a>Follow The Sun モデルのビジネス対応</h4><p>例として、北米、アジア、ヨーロッパでビジネス展開をしており、各リージョンにてアプリケーションと Cosmos DB が稼働している場合を考えます。<br>この際、手動フェールオーバーを用いて以下のように時間経過に応じて書き込みリージョンを変更していくことで、多くの書き込みリクエストのレイテンシを低く抑えることができる可能性があります。</p>
+<ul>
+<li>北米での日中時間帯：書き込みリージョンを北米にする</li>
+<li>アジアでの日中時間帯：書き込みリージョンをアジアにする</li>
+<li>ヨーロッパでの日中時間帯：書き込みリージョンをヨーロッパにする</li>
+</ul>
+<h2 id="サービスマネージド-手動フェールオーバーの違い"><a href="#サービスマネージド-手動フェールオーバーの違い" class="headerlink" title="サービスマネージド/手動フェールオーバーの違い"></a>サービスマネージド/手動フェールオーバーの違い</h2><p>サービスマネージドと手動フェールオーバーを違いをまとめると以下のようになります。</p>
+<table>
+<thead>
+<tr>
+<th>操作/シナリオ</th>
+<th align="center">手動フェールオーバー</th>
+<th align="right">サービス マネージド フェールオーバー</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>ユーザーによってトリガーされるか</td>
+<td align="center">Yes</td>
+<td align="right">No</td>
+</tr>
+<tr>
+<td>サービスによってトリガーされるか</td>
+<td align="center">No</td>
+<td align="right">Yes</td>
+</tr>
+<tr>
+<td>リージョン障害中にトリガーされるか</td>
+<td align="center">No</td>
+<td align="right">Yes</td>
+</tr>
+<tr>
+<td>フェールオーバー元の書き込みリージョンがオフラインになるか</td>
+<td align="center">NA</td>
+<td align="right">Yes</td>
+</tr>
+<tr>
+<td>フェールオーバー元の書き込みリージョンが復旧した後、オンラインになるか</td>
+<td align="center">NA</td>
+<td align="right">Yes</td>
+</tr>
+<tr>
+<td>レプリケーションされていないデータについて、競合フィードが発生し得るか (NoSQL APIのみ)</td>
+<td align="center">NA</td>
+<td align="right">Yes</td>
+</tr>
+<tr>
+<td>全パーティションのデータが、フェールオーバー先リージョンに同期されたことを確認するか</td>
+<td align="center">Yes</td>
+<td align="right">No</td>
+</tr>
+<tr>
+<td>PostgreSQL を除く全ての API で利用できるか</td>
+<td align="center">Yes</td>
+<td align="right">Yes</td>
+</tr>
+<tr>
+<td>マルチ書き込みリージョンに適用できるか</td>
+<td align="center">No</td>
+<td align="right">No</td>
+</tr>
+</tbody></table>
+<div class="alert is-info"><p class="alert-title">Note</p><p><a target="_blank" rel="noopener" href="https://youtu.be/G5R2tr1gvkY?t=1471">Forced Failover in Azure Cosmos DB - Episode 46</a></p><p>(動画の内容は一部古い情報を含みます。あくまでも参考としてご覧ください)</p></div>
+<h2 id="まとめ"><a href="#まとめ" class="headerlink" title="まとめ"></a>まとめ</h2><p>最後までお読みくださりありがとうございました。この記事では、事例を通して、Cosmos DB における RTO, RPO, フェールオーバーの考え方をご紹介いたしました。<br>ご不明な点がございましたら、お気軽に <a target="_blank" rel="noopener" href="https://learn.microsoft.com/ja-jp/azure/azure-portal/supportability/how-to-create-azure-support-request">Azure サポート窓口までお問い合わせ</a>ください。よろしくお願いいたします。</p>
+
+      
+      
+        <div class="article-disclaimer">
+        
+          <p>※本情報の内容（添付文書、リンク先などを含む）は、作成日時点でのものであり、予告なく変更される場合があります。</p>
+        
+        </div>
+      
+    </div>
+    <footer class="article-footer">
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="../../../tags/Availavility/" rel="tag">Availavility</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="../../../tags/Durability/" rel="tag">Durability</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="../../../tags/Failover/" rel="tag">Failover</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="../../../tags/NoSQL/" rel="tag">NoSQL</a></li></ul>
+
+        
+        <a href="https://github.com/jpcosmosdb/blog/edit/main/articles/CosmosDB/Availability/failover.md" class="article-github-edit-link" target="_blank" rel="noopener noreferrer">GitHub で編集</a>
+        
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+  
+    <a href="../../%E3%83%88%E3%83%A9%E3%83%96%E3%83%AB%E3%82%B7%E3%83%A5%E3%83%BC%E3%83%86%E3%82%A3%E3%83%B3%E3%82%B0/Cosmos-DB-initialtsg/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">前の記事</strong>
+      <div class="article-nav-title">Cosmos DB に繋がらない場合</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">カテゴリ</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="../../../categories/Cosmos-DB/">Cosmos DB</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="../../../categories/Cosmos-DB/Availability/">Availability</a></li><li class="category-list-item"><a class="category-list-link" href="../../../categories/Cosmos-DB/%E3%83%88%E3%83%A9%E3%83%96%E3%83%AB%E3%82%B7%E3%83%A5%E3%83%BC%E3%83%86%E3%82%A3%E3%83%B3%E3%82%B0/">トラブルシューティング</a></li><li class="category-list-item"><a class="category-list-link" href="../../../categories/Cosmos-DB/%E6%83%85%E5%A0%B1%E6%8E%A1%E5%8F%96/">情報採取</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="../../../categories/Information/">Information</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">最近の投稿</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="">Cosmos DB における RTO, RPO, フェールオーバーの考え方</a>
+          </li>
+        
+          <li>
+            <a href="../../%E3%83%88%E3%83%A9%E3%83%96%E3%83%AB%E3%82%B7%E3%83%A5%E3%83%BC%E3%83%86%E3%82%A3%E3%83%B3%E3%82%B0/Cosmos-DB-initialtsg/">Cosmos DB に繋がらない場合</a>
+          </li>
+        
+          <li>
+            <a href="../../../Information/welcome/">Azure Cosmos DB チームのブログを始めました！</a>
+          </li>
+        
+          <li>
+            <a href="../../%E6%83%85%E5%A0%B1%E6%8E%A1%E5%8F%96/Cosmos-DB-basicinformationtocollect/">Cosmos DB 基本情報採取</a>
+          </li>
+        
+          <li>
+            <a href="../../%E6%83%85%E5%A0%B1%E6%8E%A1%E5%8F%96/Cosmos-DB-restorerequest/">Cosmos DB 復元リクエストに必要な情報</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">タグ</h3>
+    <div class="widget">
+      <!-- <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="../../../tags/NET-SDK/" rel="tag">.NET SDK</a></li><li class="tag-list-item"><a class="tag-list-link" href="../../../tags/Availavility/" rel="tag">Availavility</a></li><li class="tag-list-item"><a class="tag-list-link" href="../../../tags/Cassandra/" rel="tag">Cassandra</a></li><li class="tag-list-item"><a class="tag-list-link" href="../../../tags/Diagnostics/" rel="tag">Diagnostics</a></li><li class="tag-list-item"><a class="tag-list-link" href="../../../tags/Durability/" rel="tag">Durability</a></li><li class="tag-list-item"><a class="tag-list-link" href="../../../tags/Failover/" rel="tag">Failover</a></li><li class="tag-list-item"><a class="tag-list-link" href="../../../tags/Greetings/" rel="tag">Greetings</a></li><li class="tag-list-item"><a class="tag-list-link" href="../../../tags/Gremlin/" rel="tag">Gremlin</a></li><li class="tag-list-item"><a class="tag-list-link" href="../../../tags/Java-SDK/" rel="tag">Java SDK</a></li><li class="tag-list-item"><a class="tag-list-link" href="../../../tags/MongoDB/" rel="tag">MongoDB</a></li><li class="tag-list-item"><a class="tag-list-link" href="../../../tags/NoSQL/" rel="tag">NoSQL</a></li><li class="tag-list-item"><a class="tag-list-link" href="../../../tags/Table/" rel="tag">Table</a></li><li class="tag-list-item"><a class="tag-list-link" href="../../../tags/Troubleshooting/" rel="tag">Troubleshooting</a></li></ul>  -->
+      
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="../../../tags/NET-SDK/" rel="tag">.NET SDK</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../tags/Availavility/" rel="tag">Availavility</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../tags/Cassandra/" rel="tag">Cassandra</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../tags/Diagnostics/" rel="tag">Diagnostics</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../tags/Durability/" rel="tag">Durability</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../tags/Failover/" rel="tag">Failover</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../tags/Greetings/" rel="tag">Greetings</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../tags/Gremlin/" rel="tag">Gremlin</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../tags/Java-SDK/" rel="tag">Java SDK</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../tags/MongoDB/" rel="tag">MongoDB</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../tags/NoSQL/" rel="tag">NoSQL</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../tags/Table/" rel="tag">Table</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../tags/Troubleshooting/" rel="tag">Troubleshooting</a><span class="tag-list-count">1</span></li></ul> 
+      <!-- <ul class="tag-list"></ul> -->
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">アーカイブ</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="../../../archives/2023/05/">2023 / 05</a></li><li class="archive-list-item"><a class="archive-list-link" href="../../../archives/2023/03/">2023 / 03</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">タグクラウド</h3>
+    <div class="widget tagcloud">
+      <a href="../../../tags/NET-SDK/" style="font-size: 10px;">.NET SDK</a> <a href="../../../tags/Availavility/" style="font-size: 10px;">Availavility</a> <a href="../../../tags/Cassandra/" style="font-size: 15px;">Cassandra</a> <a href="../../../tags/Diagnostics/" style="font-size: 10px;">Diagnostics</a> <a href="../../../tags/Durability/" style="font-size: 10px;">Durability</a> <a href="../../../tags/Failover/" style="font-size: 10px;">Failover</a> <a href="../../../tags/Greetings/" style="font-size: 10px;">Greetings</a> <a href="../../../tags/Gremlin/" style="font-size: 15px;">Gremlin</a> <a href="../../../tags/Java-SDK/" style="font-size: 10px;">Java SDK</a> <a href="../../../tags/MongoDB/" style="font-size: 15px;">MongoDB</a> <a href="../../../tags/NoSQL/" style="font-size: 20px;">NoSQL</a> <a href="../../../tags/Table/" style="font-size: 15px;">Table</a> <a href="../../../tags/Troubleshooting/" style="font-size: 10px;">Troubleshooting</a>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2023 Azure Cosmos DB CSS Japan<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="../../../index.html" class="mobile-nav-link">Home</a>
+  
+    <a href="../../../archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+<script src="../../../js/script.js"></script>
+
+
+
+
+  </div>
+</body>
+</html>
