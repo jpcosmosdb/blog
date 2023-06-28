@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>Cosmos DB のデータを Logic Apps を用いて一括更新する方法 | Japan CSS Support Cosmos DB Blog</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="概要と背景こんにちは、 Cosmos DB サポートチームの星井です。この記事では、 Logic Apps の Cosmos DB トリガー機能と Cosmos DB NoSQL API側のストアド プロシージャを用いて、ドキュメントを全件更新する方法をご案内いたします。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Cosmos DB のデータを Logic Apps を用いて一括更新する方法">
+<meta property="og:url" content="https://jpcosmosdb.github.io/blog/CosmosDB/HowTo/bulkupdate-logicapp/index.html">
+<meta property="og:site_name" content="Japan CSS Support Cosmos DB Blog">
+<meta property="og:description" content="概要と背景こんにちは、 Cosmos DB サポートチームの星井です。この記事では、 Logic Apps の Cosmos DB トリガー機能と Cosmos DB NoSQL API側のストアド プロシージャを用いて、ドキュメントを全件更新する方法をご案内いたします。">
+<meta property="og:locale" content="ja_JP">
+<meta property="og:image" content="https://jpcosmosdb.github.io/blog/CosmosDB/HowTo/bulkupdate-logicapp/cosmos-dexp-sprg.png">
+<meta property="og:image" content="https://jpcosmosdb.github.io/blog/CosmosDB/HowTo/bulkupdate-logicapp/create-logicapp-1.png">
+<meta property="og:image" content="https://jpcosmosdb.github.io/blog/CosmosDB/HowTo/bulkupdate-logicapp/create-logicapp-2.png">
+<meta property="og:image" content="https://jpcosmosdb.github.io/blog/CosmosDB/HowTo/bulkupdate-logicapp/create-logicapp-3.png">
+<meta property="og:image" content="https://jpcosmosdb.github.io/blog/CosmosDB/HowTo/bulkupdate-logicapp/logicapp-selectall-1.png">
+<meta property="og:image" content="https://jpcosmosdb.github.io/blog/CosmosDB/HowTo/bulkupdate-logicapp/logicapp-selectall-2.png">
+<meta property="og:image" content="https://jpcosmosdb.github.io/blog/CosmosDB/HowTo/bulkupdate-logicapp/logicapp-selectall-3.png">
+<meta property="og:image" content="https://jpcosmosdb.github.io/blog/CosmosDB/HowTo/bulkupdate-logicapp/logicapp-foreach.png">
+<meta property="og:image" content="https://jpcosmosdb.github.io/blog/CosmosDB/HowTo/bulkupdate-logicapp/logicapp-foreach-2.png">
+<meta property="og:image" content="https://jpcosmosdb.github.io/blog/CosmosDB/HowTo/bulkupdate-logicapp/logicapp-parsejson-1.png">
+<meta property="og:image" content="https://jpcosmosdb.github.io/blog/CosmosDB/HowTo/bulkupdate-logicapp/logicapp-parsejson-2.png">
+<meta property="og:image" content="https://jpcosmosdb.github.io/blog/CosmosDB/HowTo/bulkupdate-logicapp/logicapp-execstrd-1.png">
+<meta property="og:image" content="https://jpcosmosdb.github.io/blog/CosmosDB/HowTo/bulkupdate-logicapp/logicapp-execstrd-2.png">
+<meta property="og:image" content="https://jpcosmosdb.github.io/blog/CosmosDB/HowTo/bulkupdate-logicapp/logicapp-execstrd-3.png">
+<meta property="og:image" content="https://jpcosmosdb.github.io/blog/CosmosDB/HowTo/bulkupdate-logicapp/logicapp-exec-1.png">
+<meta property="og:image" content="https://jpcosmosdb.github.io/blog/CosmosDB/HowTo/bulkupdate-logicapp/result-1.png">
+<meta property="article:published_time" content="2023-05-22T03:00:00.000Z">
+<meta property="article:modified_time" content="2023-06-28T12:16:02.577Z">
+<meta property="article:author" content="Azure Cosmos DB CSS Japan">
+<meta property="article:tag" content="Cosmos DB">
+<meta property="article:tag" content="NoSQL API">
+<meta property="article:tag" content="Example">
+<meta property="article:tag" content="Bulk Update">
+<meta property="article:tag" content="Logic Apps">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://jpcosmosdb.github.io/blog/CosmosDB/HowTo/bulkupdate-logicapp/cosmos-dexp-sprg.png">
+  
+    <link rel="alternate" href="../../../atom.xml" title="Japan CSS Support Cosmos DB Blog" type="application/atom+xml">
+  
+
+  <link rel="icon" href="../../../favicon.ico">
+  <link rel="apple-touch-icon" sizes="180x180" href="../../../apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="../../../favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="../../../favicon-16x16.png">
+  <link rel="manifest" href="../../../site.webmanifest">
+  <link rel="mask-icon" href="../../../safari-pinned-tab.svg" color="#5bbad5">
+  <meta name="msapplication-TileColor" content="#ffffff">
+  <meta name="theme-color" content="#ffffff">
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  
+<link rel="stylesheet" href="../../../css/style.css">
+
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="site-header-logo"></div>
+  <div id="site-header-blog-wrapper"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        <div id="ms-logo"></div>
+        
+          <a class="main-nav-link" href="/blog/">Home</a>
+        
+          <a class="main-nav-link" href="/blog/archives">Archives</a>
+        
+        <a class="main-nav-link" target="_blank" rel="noopener" href="https://cssjpn.github.io/">サポート情報</a>
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="../../../atom.xml" title="RSSフィード"></a>
+        
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//www.bing.com/search" method="get" accept-charset="UTF-8" name="bing-search" onsubmit="var f=this;if(f['q'].value){var searchUrl =  'https://www.bing.com/search?q=' +  encodeURIComponent(f['q'].value + ' site:' + f['sitesearch'].value) ;window.open(searchUrl, 'blank') };return false;" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="検索"><button type="submit" id="nav-search-btn" class="search-form-submit"></button><input type="hidden" name="sitesearch" value="https://jpcosmosdb.github.io/blog"></form>
+      </div>
+    </div>
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="../../../index.html" id="logo">Japan CSS Support Cosmos DB Blog</a>
+      </h1>
+      
+        <h2 id="subtitle-wrap">
+          <a href="../../../index.html" id="subtitle">日本マイクロソフトの Cosmos DB に関するサポート情報のブログです。</a>
+        </h2>
+      
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-CosmosDB/HowTo/bulkupdate-logicapp" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    
+    
+      <header class="article-header-single">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Cosmos DB のデータを Logic Apps を用いて一括更新する方法
+    </h1>
+  
+
+      </header>
+      <div class="article-share">
+        Last Update: 
+        <a href="" class="article-date-single">
+  <time datetime="2023-05-22T03:00:00.000Z" itemprop="datePublished">2023-05-22</time>
+</a>
+        
+  <!-- <div class="article-category">
+    <a class="article-category-link" href="../../../categories/Cosmos-DB/">Cosmos DB</a>►<a class="article-category-link" href="../../../categories/Cosmos-DB/HowTo/">HowTo</a>
+  </div> -->
+
+        
+        <a href="https://github.com/jpcosmosdb/blog/issues/new?title=&body=%0A%0A---%0A%0A%23%23%23%23+Document+Details%0A%0A%E2%9A%A0+*Do+not+edit+this+section.%0A%0A*+ID%3A+d9f76e27-c0f0-5836-b99d-edfab8de087f%0A*+%E5%AF%BE%E8%B1%A1%E8%A8%98%E4%BA%8B%3A+%5BCosmos+DB+%E3%81%AE%E3%83%87%E3%83%BC%E3%82%BF%E3%82%92+Logic+Apps+%E3%82%92%E7%94%A8%E3%81%84%E3%81%A6%E4%B8%80%E6%8B%AC%E6%9B%B4%E6%96%B0%E3%81%99%E3%82%8B%E6%96%B9%E6%B3%95%5D%28https%3A%2F%2Fjpcosmosdb.github.io%2Fblog%2FCosmosDB%2FHowTo%2Fbulkupdate-logicapp%2F%29%0A*+Content+Source%3A+%5Barticles%2FCosmosDB%2FHowTo%2Fbulkupdate-logicapp.md%5D%28https%3A%2F%2Fgithub.com%2Fjpcosmosdb%2Fblog%2Fblob%2Fmain%2Farticles%2FCosmosDB%2FHowTo%2Fbulkupdate-logicapp.md%29%0A*+Author%3A+" class="article-github-issue-link" target="_blank" rel="noopener noreferrer">feedback</a>
+        
+        <a data-url="https://jpcosmosdb.github.io/blog/CosmosDB/HowTo/bulkupdate-logicapp/" data-id="cljfokf7i00040np752rk5aon" class="article-share-link">共有</a>
+      </div>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="概要と背景"><a href="#概要と背景" class="headerlink" title="概要と背景"></a>概要と背景</h2><p>こんにちは、 Cosmos DB サポートチームの星井です。<br>この記事では、 Logic Apps の Cosmos DB トリガー機能と Cosmos DB NoSQL API側のストアド プロシージャを用いて、<br>ドキュメントを全件更新する方法をご案内いたします。</p>
+<span id="more"></span>
+<p>Cosmos DB においては、 UPDATE 文を使ったデータの一括更新がサポートされていないため、このような場合、ドキュメントを全件取得して更新処理をかけていくことになります。<br>一方で Logic Apps では、 Cosmos DB のデータ全件取得処理とストアド プロシージャの実行がサポートされているため、これを利用してデータの一括更新を行うことが可能です。</p>
+<p>今回の例では、 Cosmos DB NoSQL API のコレクション (コレクション ID: users) に以下の 2 ドキュメントが格納されているとします。パーティション キーは「name」です。<br>これらのドキュメントの「time」を現在時刻に更新し、かつ「age」に +1 をする処理を Logic Apps と Cosmos DB のストアド プロシージャを用いて実装してみます。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">[</span><br><span class="line">    &#123;</span><br><span class="line">        &quot;name&quot;: &quot;Alice&quot;,</span><br><span class="line">        &quot;age&quot;: 22,</span><br><span class="line">        &quot;userid&quot;: 1,</span><br><span class="line">        &quot;time&quot;: &quot;2019-05-02 15:23:50.0000000&quot;</span><br><span class="line">    &#125;,</span><br><span class="line">    &#123;</span><br><span class="line">        &quot;name&quot;: &quot;Bob&quot;,</span><br><span class="line">        &quot;age&quot;: 23,</span><br><span class="line">        &quot;userid&quot;: 2,</span><br><span class="line">        &quot;time&quot;: &quot;2020-05-02 15:23:50.0000000&quot;</span><br><span class="line">    &#125;</span><br><span class="line">]</span><br></pre></td></tr></table></figure>
+
+<p>大まかに、以下の流れでシステムを構成していくことになります。</p>
+<ol>
+<li>部分的更新用のストアド プロシージャの登録</li>
+<li>ロジック アプリ作成</li>
+<li>ドキュメント全件取得ステップの追加</li>
+<li>JSON の解析ステップの追加</li>
+<li>ストアド プロシージャの実行ステップの追加</li>
+<li>トリガーの実行</li>
+</ol>
+<h2 id="1-部分的更新用のストアド-プロシージャの登録"><a href="#1-部分的更新用のストアド-プロシージャの登録" class="headerlink" title="1. 部分的更新用のストアド プロシージャの登録"></a>1. 部分的更新用のストアド プロシージャの登録</h2><p>Cosmos DB のデータ エクスプローラーにて、部分的更新を行うストアド プロシージャを登録しておきます。この例では、ストアド プロシージャの ID は「testUpdate」としています。</p>
+<p><img src="/blog/CosmosDB/HowTo/bulkupdate-logicapp/cosmos-dexp-sprg.png"></p>
+<p>ご参考：検証用のストアド プロシージャ：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">function patchDocument(selflink, updateTime) &#123;</span><br><span class="line">   var isAccepted = __.readDocument(selflink,</span><br><span class="line">        (err, res) =&gt; &#123;</span><br><span class="line">            if (err) throw err;</span><br><span class="line">            var patchSpec = [</span><br><span class="line">                &#123;&quot;op&quot;: &quot;replace&quot;, &quot;path&quot;: &quot;/time&quot;, &quot;value&quot;: updateTime&#125;,</span><br><span class="line">                &#123;&quot;op&quot;: &quot;replace&quot;, &quot;path&quot;: &quot;/age&quot;, &quot;value&quot;: res.age + 1&#125;</span><br><span class="line">            ];</span><br><span class="line">            isAccepted = __.patchDocument(</span><br><span class="line">                res._self,</span><br><span class="line">                patchSpec,</span><br><span class="line">                (err, res) =&gt; &#123;</span><br><span class="line">                    if (err) throw err;</span><br><span class="line">                    else &#123;</span><br><span class="line">                        getContext().getResponse().setBody(&quot;successfully patched&quot;);</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            );</span><br><span class="line">            if(!isAccepted) &#123;</span><br><span class="line">                throw new Error(&quot;patch was&#x27;t accepted&quot;);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">   );</span><br><span class="line">   if(!isAccepted) throw new Error(&quot;read wasn&#x27;t accepted&quot;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="2-ロジック-アプリ作成"><a href="#2-ロジック-アプリ作成" class="headerlink" title="2. ロジック アプリ作成"></a>2. ロジック アプリ作成</h2><p>Marketplace にて「Logic Apps」で検索し、ロジック アプリを選択して作成します。</p>
+<p><img src="/blog/CosmosDB/HowTo/bulkupdate-logicapp/create-logicapp-1.png"></p>
+<p>今回は、プランの種類で「消費」を選択して確認および作成します。</p>
+<p><img src="/blog/CosmosDB/HowTo/bulkupdate-logicapp/create-logicapp-2.png"></p>
+<p>「ロジック アプリ デザイナー」にて、今回は「HTTP 要求の受信時」を選択してロジック アプリを作成します。</p>
+<p><img src="/blog/CosmosDB/HowTo/bulkupdate-logicapp/create-logicapp-3.png"></p>
+<h2 id="3-ドキュメント全件取得ステップの追加"><a href="#3-ドキュメント全件取得ステップの追加" class="headerlink" title="3. ドキュメント全件取得ステップの追加"></a>3. ドキュメント全件取得ステップの追加</h2><p>新しいステップを追加し、検索窓に「Cosmos」と入力し、アクションとして「すべてのドキュメントを取得（Ｖ３）」を選択します。</p>
+<p><img src="/blog/CosmosDB/HowTo/bulkupdate-logicapp/logicapp-selectall-1.png"></p>
+<p>任意の接続名と、操作対象の Cosmos DB アカウント名、プライマリー キーの値を設定します。</p>
+<p><img src="/blog/CosmosDB/HowTo/bulkupdate-logicapp/logicapp-selectall-2.png"></p>
+<p>Cosmos DB アカウント名、データベース ID、コレクション ID を入力し、新しいステップを追加します。</p>
+<p><img src="/blog/CosmosDB/HowTo/bulkupdate-logicapp/logicapp-selectall-3.png"></p>
+<p>検索窓に「制御」を入力し、表示されたアクションから「For each」を選択します。</p>
+<p><img src="/blog/CosmosDB/HowTo/bulkupdate-logicapp/logicapp-foreach.png"></p>
+<p>「以前の手順から出力を選択」の箇所で、動的なコンテンツとして「すべてのドキュメントを取得」から「Documents」を選択します。</p>
+<p><img src="/blog/CosmosDB/HowTo/bulkupdate-logicapp/logicapp-foreach-2.png"></p>
+<h2 id="4-JSON-の解析ステップの追加"><a href="#4-JSON-の解析ステップの追加" class="headerlink" title="4. JSON の解析ステップの追加"></a>4. JSON の解析ステップの追加</h2><p>ストアド プロシージャに渡す値を各ドキュメントから取得するため、ドキュメント内の値をパースする必要があります。<br>こちら、「JSON の解析」アクションで実施します。<br>「アクションの追加」をクリック後、検索窓に「JSON」を入力し、「ビルトイン」タブから「JSON の解析」を選択します。</p>
+<p><img src="/blog/CosmosDB/HowTo/bulkupdate-logicapp/logicapp-parsejson-1.png"></p>
+<p>コンテンツに動的なアイテムの追加より「現在のアイテム」を指定します。<br>「サンプルのペイロードを使用してスキーマを生成する」をクリックし、以下のように Cosmos DB のデータ エクスプローラー等で表示できる、ドキュメントの値を入力し完了をクリックします。</p>
+<p><img src="/blog/CosmosDB/HowTo/bulkupdate-logicapp/logicapp-parsejson-2.png"></p>
+<h2 id="5-ストアド-プロシージャの実行ステップの追加"><a href="#5-ストアド-プロシージャの実行ステップの追加" class="headerlink" title="5. ストアド プロシージャの実行ステップの追加"></a>5. ストアド プロシージャの実行ステップの追加</h2><p>次に、ストアド プロシージャ実行のアクションを追加します。<br>検索窓に「Cosmos」を入力し、アクションとして「ストアド プロシージャを実行（V2）」を選択します。</p>
+<p><img src="/blog/CosmosDB/HowTo/bulkupdate-logicapp/logicapp-execstrd-1.png"></p>
+<p>Cosmos DB アカウント名、データベース ID、 コレクション ID、 ストアド プロシージャの ID を入力します。<br>新しいパラメーターの追加より「パーティション キーの値」を選択し、パーティション キーの値を指定します。この例のコレクションにおいては、パーティション キーは name なので、 「JSON の解析」から 「name」 を選択します。<br>「name」はダブルクォートで囲みます。</p>
+<p><img src="/blog/CosmosDB/HowTo/bulkupdate-logicapp/logicapp-execstrd-2.png"></p>
+<p>次に、新しいパラメーターの追加より「ストアド プロシージャのパラメーター」を選択します。<br>今回の例におけるストアド プロシージャの引数はドキュメントの ID、現在時刻の文字列になるので、<br>JSON の解析から「_self」、関数から 「utcNow()」を選択します。<br>今回のストアドプロシージャーのパラメーターは [“&lt;_self&gt;”,”&lt;utcNow()&gt;”]  と角括弧で全体を囲み、_self, utcNow() それぞれの引数の値はそれぞれダブルクォートで囲む必要がありますので、ご注意ください。</p>
+<p><img src="/blog/CosmosDB/HowTo/bulkupdate-logicapp/logicapp-execstrd-3.png"></p>
+<h2 id="6-トリガーの実行"><a href="#6-トリガーの実行" class="headerlink" title="6. トリガーの実行"></a>6. トリガーの実行</h2><p>「トリガーの実行」をクリックすると、更新が実施され、結果が表示されます。</p>
+<p><img src="/blog/CosmosDB/HowTo/bulkupdate-logicapp/logicapp-exec-1.png"></p>
+<p>全ドキュメントが更新されているのを確認できます。<br><img src="/blog/CosmosDB/HowTo/bulkupdate-logicapp/result-1.png"></p>
+<h2 id="まとめ"><a href="#まとめ" class="headerlink" title="まとめ"></a>まとめ</h2><p>以上が、 Logic Apps と Cosmos DB のストアド プロシージャを用いて、データの一括更新を実装する方法です。<br>なお、Cosmos DB に対して一括更新処理を行うには、この記事の内容の他にも、<a target="_blank" rel="noopener" href="https://learn.microsoft.com/ja-jp/azure/cosmos-db/nosql/how-to-migrate-from-bulk-executor-library">Cosmos DB SDK の Bulk サポート</a>を用いる方法などがあります。</p>
+<h3 id="注意点"><a href="#注意点" class="headerlink" title="注意点"></a>注意点</h3><p>ドキュメントの一括更新にあたってはドキュメントの全件取得と更新処理を実施していくことになるため、処理の実施中はコレクションの RU 消費量が高まることが想定されます。そのため、運用環境へ導入される際は、性能試験を実施のうえ、十分なスループットをご準備ください。</p>
+<p>参考記事：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://learn.microsoft.com/ja-jp/azure/cosmos-db/set-throughput">Azure Cosmos DB におけるスループットのプロビジョニングの概要</a></li>
+<li><a target="_blank" rel="noopener" href="https://learn.microsoft.com/ja-jp/azure/cosmos-db/scaling-provisioned-throughput-best-practices">プロビジョニングされたスループット (RU/秒) のスケーリングに関するベスト プラクティス</a></li>
+</ul>
+<p>最後までお読みくださり、誠にありがとうございました。<br>この記事の内容が少しでも皆様のお役に立ちましたら幸いです。</p>
+<p>ご不明な点がありましたら、 Azure ポータルよりいつでもお気軽にお問い合わせください！</p>
+
+      
+      
+        <div class="article-disclaimer">
+        
+          <p>※本情報の内容（添付文書、リンク先などを含む）は、作成日時点でのものであり、予告なく変更される場合があります。</p>
+        
+        </div>
+      
+    </div>
+    <footer class="article-footer">
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="../../../tags/Bulk-Update/" rel="tag">Bulk Update</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="../../../tags/Cosmos-DB/" rel="tag">Cosmos DB</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="../../../tags/Example/" rel="tag">Example</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="../../../tags/Logic-Apps/" rel="tag">Logic Apps</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="../../../tags/NoSQL-API/" rel="tag">NoSQL API</a></li></ul>
+
+        
+        <a href="https://github.com/jpcosmosdb/blog/edit/main/articles/CosmosDB/HowTo/bulkupdate-logicapp.md" class="article-github-edit-link" target="_blank" rel="noopener noreferrer">GitHub で編集</a>
+        
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+  
+    <a href="../../Availability/failover/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">前の記事</strong>
+      <div class="article-nav-title">Cosmos DB における RTO, RPO, フェールオーバーの考え方</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">カテゴリ</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="../../../categories/Cosmos-DB/">Cosmos DB</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="../../../categories/Cosmos-DB/Availability/">Availability</a></li><li class="category-list-item"><a class="category-list-link" href="../../../categories/Cosmos-DB/HowTo/">HowTo</a></li><li class="category-list-item"><a class="category-list-link" href="../../../categories/Cosmos-DB/%E3%83%88%E3%83%A9%E3%83%96%E3%83%AB%E3%82%B7%E3%83%A5%E3%83%BC%E3%83%86%E3%82%A3%E3%83%B3%E3%82%B0/">トラブルシューティング</a></li><li class="category-list-item"><a class="category-list-link" href="../../../categories/Cosmos-DB/%E6%83%85%E5%A0%B1%E6%8E%A1%E5%8F%96/">情報採取</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="../../../categories/Information/">Information</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">最近の投稿</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="">Cosmos DB のデータを Logic Apps を用いて一括更新する方法</a>
+          </li>
+        
+          <li>
+            <a href="../../Availability/failover/">Cosmos DB における RTO, RPO, フェールオーバーの考え方</a>
+          </li>
+        
+          <li>
+            <a href="../../%E3%83%88%E3%83%A9%E3%83%96%E3%83%AB%E3%82%B7%E3%83%A5%E3%83%BC%E3%83%86%E3%82%A3%E3%83%B3%E3%82%B0/Cosmos-DB-initialtsg/">Cosmos DB に繋がらない場合</a>
+          </li>
+        
+          <li>
+            <a href="../../../Information/welcome/">Azure Cosmos DB チームのブログを始めました！</a>
+          </li>
+        
+          <li>
+            <a href="../../%E6%83%85%E5%A0%B1%E6%8E%A1%E5%8F%96/Cosmos-DB-basicinformationtocollect/">Cosmos DB 基本情報採取</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">タグ</h3>
+    <div class="widget">
+      <!-- <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="../../../tags/NET-SDK/" rel="tag">.NET SDK</a></li><li class="tag-list-item"><a class="tag-list-link" href="../../../tags/Availavility/" rel="tag">Availavility</a></li><li class="tag-list-item"><a class="tag-list-link" href="../../../tags/Bulk-Update/" rel="tag">Bulk Update</a></li><li class="tag-list-item"><a class="tag-list-link" href="../../../tags/Cassandra/" rel="tag">Cassandra</a></li><li class="tag-list-item"><a class="tag-list-link" href="../../../tags/Cosmos-DB/" rel="tag">Cosmos DB</a></li><li class="tag-list-item"><a class="tag-list-link" href="../../../tags/Diagnostics/" rel="tag">Diagnostics</a></li><li class="tag-list-item"><a class="tag-list-link" href="../../../tags/Durability/" rel="tag">Durability</a></li><li class="tag-list-item"><a class="tag-list-link" href="../../../tags/Example/" rel="tag">Example</a></li><li class="tag-list-item"><a class="tag-list-link" href="../../../tags/Failover/" rel="tag">Failover</a></li><li class="tag-list-item"><a class="tag-list-link" href="../../../tags/Greetings/" rel="tag">Greetings</a></li><li class="tag-list-item"><a class="tag-list-link" href="../../../tags/Gremlin/" rel="tag">Gremlin</a></li><li class="tag-list-item"><a class="tag-list-link" href="../../../tags/Java-SDK/" rel="tag">Java SDK</a></li><li class="tag-list-item"><a class="tag-list-link" href="../../../tags/Logic-Apps/" rel="tag">Logic Apps</a></li><li class="tag-list-item"><a class="tag-list-link" href="../../../tags/MongoDB/" rel="tag">MongoDB</a></li><li class="tag-list-item"><a class="tag-list-link" href="../../../tags/NoSQL/" rel="tag">NoSQL</a></li><li class="tag-list-item"><a class="tag-list-link" href="../../../tags/NoSQL-API/" rel="tag">NoSQL API</a></li><li class="tag-list-item"><a class="tag-list-link" href="../../../tags/Table/" rel="tag">Table</a></li><li class="tag-list-item"><a class="tag-list-link" href="../../../tags/Troubleshooting/" rel="tag">Troubleshooting</a></li></ul>  -->
+      
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="../../../tags/NET-SDK/" rel="tag">.NET SDK</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../tags/Availavility/" rel="tag">Availavility</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../tags/Bulk-Update/" rel="tag">Bulk Update</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../tags/Cassandra/" rel="tag">Cassandra</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../tags/Cosmos-DB/" rel="tag">Cosmos DB</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../tags/Diagnostics/" rel="tag">Diagnostics</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../tags/Durability/" rel="tag">Durability</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../tags/Example/" rel="tag">Example</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../tags/Failover/" rel="tag">Failover</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../tags/Greetings/" rel="tag">Greetings</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../tags/Gremlin/" rel="tag">Gremlin</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../tags/Java-SDK/" rel="tag">Java SDK</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../tags/Logic-Apps/" rel="tag">Logic Apps</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../tags/MongoDB/" rel="tag">MongoDB</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../tags/NoSQL/" rel="tag">NoSQL</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../tags/NoSQL-API/" rel="tag">NoSQL API</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../tags/Table/" rel="tag">Table</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../tags/Troubleshooting/" rel="tag">Troubleshooting</a><span class="tag-list-count">1</span></li></ul> 
+      <!-- <ul class="tag-list"></ul> -->
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">アーカイブ</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="../../../archives/2023/05/">2023 / 05</a></li><li class="archive-list-item"><a class="archive-list-link" href="../../../archives/2023/03/">2023 / 03</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">タグクラウド</h3>
+    <div class="widget tagcloud">
+      <a href="../../../tags/NET-SDK/" style="font-size: 10px;">.NET SDK</a> <a href="../../../tags/Availavility/" style="font-size: 10px;">Availavility</a> <a href="../../../tags/Bulk-Update/" style="font-size: 10px;">Bulk Update</a> <a href="../../../tags/Cassandra/" style="font-size: 15px;">Cassandra</a> <a href="../../../tags/Cosmos-DB/" style="font-size: 10px;">Cosmos DB</a> <a href="../../../tags/Diagnostics/" style="font-size: 10px;">Diagnostics</a> <a href="../../../tags/Durability/" style="font-size: 10px;">Durability</a> <a href="../../../tags/Example/" style="font-size: 10px;">Example</a> <a href="../../../tags/Failover/" style="font-size: 10px;">Failover</a> <a href="../../../tags/Greetings/" style="font-size: 10px;">Greetings</a> <a href="../../../tags/Gremlin/" style="font-size: 15px;">Gremlin</a> <a href="../../../tags/Java-SDK/" style="font-size: 10px;">Java SDK</a> <a href="../../../tags/Logic-Apps/" style="font-size: 10px;">Logic Apps</a> <a href="../../../tags/MongoDB/" style="font-size: 15px;">MongoDB</a> <a href="../../../tags/NoSQL/" style="font-size: 20px;">NoSQL</a> <a href="../../../tags/NoSQL-API/" style="font-size: 10px;">NoSQL API</a> <a href="../../../tags/Table/" style="font-size: 15px;">Table</a> <a href="../../../tags/Troubleshooting/" style="font-size: 10px;">Troubleshooting</a>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2023 Azure Cosmos DB CSS Japan<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="../../../index.html" class="mobile-nav-link">Home</a>
+  
+    <a href="../../../archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+<script src="../../../js/script.js"></script>
+
+
+
+
+  </div>
+</body>
+</html>
