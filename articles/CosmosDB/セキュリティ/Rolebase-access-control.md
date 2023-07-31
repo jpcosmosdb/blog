@@ -31,7 +31,8 @@ Cosmos DB に対する様々な操作は、データプレーンもしくは管�
 そのため下記のスクリーンから確認できるロールは "Azure RBAC" に関するロールとなります。
 ![](./Rolebase-access-control/IAMscreen.png)
 
-"Azure Cosmos DB RBAC" のロールを確認する場合は、Powershell や CLI をご利用いただく必要がございます。
+"Azure Cosmos DB RBAC" のロールを確認する場合は、PowerShell や CLI をご利用いただく必要がございます。
+
 
 PowerShell を用いた "Azure Cosmos DB RBAC" のロール確認例
 
