@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>NoSQL API Cosmos DB におけるロールベースのアクセス制御について | Japan CSS Support Cosmos DB Blog</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="こんにちは。Cosmos DB サポートチームの松浦と申します。 本記事では Cosmos DB におけるロールベースのアクセス制御についての考え方をご案内します。なお、本記事での、データに対する操作についての説明は NoSQL 用 API についての案内となります。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="NoSQL API Cosmos DB におけるロールベースのアクセス制御について">
+<meta property="og:url" content="https://jpcosmosdb.github.io/blog/CosmosDB/%E3%82%BB%E3%82%AD%E3%83%A5%E3%83%AA%E3%83%86%E3%82%A3/Rolebase-access-control/index.html">
+<meta property="og:site_name" content="Japan CSS Support Cosmos DB Blog">
+<meta property="og:description" content="こんにちは。Cosmos DB サポートチームの松浦と申します。 本記事では Cosmos DB におけるロールベースのアクセス制御についての考え方をご案内します。なお、本記事での、データに対する操作についての説明は NoSQL 用 API についての案内となります。">
+<meta property="og:locale" content="ja_JP">
+<meta property="og:image" content="https://jpcosmosdb.github.io/blog/CosmosDB/%E3%82%BB%E3%82%AD%E3%83%A5%E3%83%AA%E3%83%86%E3%82%A3/Rolebase-access-control/IAMscreen.png">
+<meta property="og:image" content="https://jpcosmosdb.github.io/blog/CosmosDB/%E3%82%BB%E3%82%AD%E3%83%A5%E3%83%AA%E3%83%86%E3%82%A3/Rolebase-access-control/AzureCosmosRBACList.png">
+<meta property="og:image" content="https://jpcosmosdb.github.io/blog/CosmosDB/%E3%82%BB%E3%82%AD%E3%83%A5%E3%83%AA%E3%83%86%E3%82%A3/Rolebase-access-control/buildinrole.png">
+<meta property="og:image" content="https://jpcosmosdb.github.io/blog/CosmosDB/%E3%82%BB%E3%82%AD%E3%83%A5%E3%83%AA%E3%83%86%E3%82%A3/Rolebase-access-control/customerrolecreate.png">
+<meta property="og:image" content="https://jpcosmosdb.github.io/blog/CosmosDB/%E3%82%BB%E3%82%AD%E3%83%A5%E3%83%AA%E3%83%86%E3%82%A3/Rolebase-access-control/userprincipal.png">
+<meta property="og:image" content="https://jpcosmosdb.github.io/blog/CosmosDB/%E3%82%BB%E3%82%AD%E3%83%A5%E3%83%AA%E3%83%86%E3%82%A3/Rolebase-access-control/serviceprincipal.png">
+<meta property="og:image" content="https://jpcosmosdb.github.io/blog/CosmosDB/%E3%82%BB%E3%82%AD%E3%83%A5%E3%83%AA%E3%83%86%E3%82%A3/Rolebase-access-control/roleassignment.png">
+<meta property="og:image" content="https://jpcosmosdb.github.io/blog/CosmosDB/%E3%82%BB%E3%82%AD%E3%83%A5%E3%83%AA%E3%83%86%E3%82%A3/Rolebase-access-control/roleassignmentcheck.png">
+<meta property="article:published_time" content="2023-07-31T06:00:00.000Z">
+<meta property="article:modified_time" content="2023-07-31T11:13:24.797Z">
+<meta property="article:author" content="Azure Cosmos DB CSS Japan">
+<meta property="article:tag" content="NoSQL">
+<meta property="article:tag" content="データプレーン">
+<meta property="article:tag" content="管理プレーン">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://jpcosmosdb.github.io/blog/CosmosDB/%E3%82%BB%E3%82%AD%E3%83%A5%E3%83%AA%E3%83%86%E3%82%A3/Rolebase-access-control/IAMscreen.png">
+  
+    <link rel="alternate" href="../../../atom.xml" title="Japan CSS Support Cosmos DB Blog" type="application/atom+xml">
+  
+
+  <link rel="icon" href="../../../favicon.ico">
+  <link rel="apple-touch-icon" sizes="180x180" href="../../../apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="../../../favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="../../../favicon-16x16.png">
+  <link rel="manifest" href="../../../site.webmanifest">
+  <link rel="mask-icon" href="../../../safari-pinned-tab.svg" color="#5bbad5">
+  <meta name="msapplication-TileColor" content="#ffffff">
+  <meta name="theme-color" content="#ffffff">
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  
+<link rel="stylesheet" href="../../../css/style.css">
+
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="site-header-logo"></div>
+  <div id="site-header-blog-wrapper"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        <div id="ms-logo"></div>
+        
+          <a class="main-nav-link" href="/blog/">Home</a>
+        
+          <a class="main-nav-link" href="/blog/archives">Archives</a>
+        
+        <a class="main-nav-link" target="_blank" rel="noopener" href="https://cssjpn.github.io/">サポート情報</a>
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="../../../atom.xml" title="RSSフィード"></a>
+        
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//www.bing.com/search" method="get" accept-charset="UTF-8" name="bing-search" onsubmit="var f=this;if(f['q'].value){var searchUrl =  'https://www.bing.com/search?q=' +  encodeURIComponent(f['q'].value + ' site:' + f['sitesearch'].value) ;window.open(searchUrl, 'blank') };return false;" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="検索"><button type="submit" id="nav-search-btn" class="search-form-submit"></button><input type="hidden" name="sitesearch" value="https://jpcosmosdb.github.io/blog"></form>
+      </div>
+    </div>
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="../../../index.html" id="logo">Japan CSS Support Cosmos DB Blog</a>
+      </h1>
+      
+        <h2 id="subtitle-wrap">
+          <a href="../../../index.html" id="subtitle">日本マイクロソフトの Cosmos DB に関するサポート情報のブログです。</a>
+        </h2>
+      
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-CosmosDB/セキュリティ/Rolebase-access-control" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    
+    
+      <header class="article-header-single">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      NoSQL API Cosmos DB におけるロールベースのアクセス制御について
+    </h1>
+  
+
+      </header>
+      <div class="article-share">
+        Last Update: 
+        <a href="" class="article-date-single">
+  <time datetime="2023-07-31T06:00:00.000Z" itemprop="datePublished">2023-07-31</time>
+</a>
+        
+  <!-- <div class="article-category">
+    <a class="article-category-link" href="../../../categories/Cosmos-DB/">Cosmos DB</a>►<a class="article-category-link" href="../../../categories/Cosmos-DB/%E3%82%BB%E3%82%AD%E3%83%A5%E3%83%AA%E3%83%86%E3%82%A3/">セキュリティ</a>
+  </div> -->
+
+        
+        <a href="https://github.com/jpcosmosdb/blog/issues/new?title=&body=%0A%0A---%0A%0A%23%23%23%23+Document+Details%0A%0A%E2%9A%A0+*Do+not+edit+this+section.%0A%0A*+ID%3A+829d5b03-6705-5770-8ce8-965ba855214d%0A*+%E5%AF%BE%E8%B1%A1%E8%A8%98%E4%BA%8B%3A+%5BNoSQL+API+Cosmos+DB+%E3%81%AB%E3%81%8A%E3%81%91%E3%82%8B%E3%83%AD%E3%83%BC%E3%83%AB%E3%83%99%E3%83%BC%E3%82%B9%E3%81%AE%E3%82%A2%E3%82%AF%E3%82%BB%E3%82%B9%E5%88%B6%E5%BE%A1%E3%81%AB%E3%81%A4%E3%81%84%E3%81%A6%5D%28https%3A%2F%2Fjpcosmosdb.github.io%2Fblog%2FCosmosDB%2F%E3%82%BB%E3%82%AD%E3%83%A5%E3%83%AA%E3%83%86%E3%82%A3%2FRolebase-access-control%2F%29%0A*+Content+Source%3A+%5Barticles%2FCosmosDB%2F%E3%82%BB%E3%82%AD%E3%83%A5%E3%83%AA%E3%83%86%E3%82%A3%2FRolebase-access-control.md%5D%28https%3A%2F%2Fgithub.com%2Fjpcosmosdb%2Fblog%2Fblob%2Fmain%2Farticles%2FCosmosDB%2F%E3%82%BB%E3%82%AD%E3%83%A5%E3%83%AA%E3%83%86%E3%82%A3%2FRolebase-access-control.md%29%0A*+Author%3A+" class="article-github-issue-link" target="_blank" rel="noopener noreferrer">feedback</a>
+        
+        <a data-url="https://jpcosmosdb.github.io/blog/CosmosDB/%E3%82%BB%E3%82%AD%E3%83%A5%E3%83%AA%E3%83%86%E3%82%A3/Rolebase-access-control/" data-id="clkqrv0g000050nmm6q4y99n2" class="article-share-link">共有</a>
+      </div>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>こんにちは。Cosmos DB サポートチームの松浦と申します。</p>
+<p>本記事では Cosmos DB におけるロールベースのアクセス制御についての考え方をご案内します。<br>なお、本記事での、データに対する操作についての説明は NoSQL 用 API についての案内となります。</p>
+<span id="more"></span>
+<h2 id="Cosmos-DB-における操作とロールベースの制御範囲の考え方"><a href="#Cosmos-DB-における操作とロールベースの制御範囲の考え方" class="headerlink" title="Cosmos DB における操作とロールベースの制御範囲の考え方"></a>Cosmos DB における操作とロールベースの制御範囲の考え方</h2><p>Cosmos DB に対する様々な操作は、データプレーンもしくは管理プレーン (コントロールプレーン) の操作に分けられます。<br>例えば、Cosmos DB に格納されているデータに対する読み取り、追加、削除、更新といったアクセスはデータプレーンでの操作となります。</p>
+<p>一方で、Cosmos DB のアカウント自体に対する変更 (アカウント自体の作成や削除、ファイアウォールの設定、アカウントのグローバル分散等) は管理プレーンでの操作となります。</p>
+<p>このうちデータプレーンに対する操作はキー、リソース トークン、Azure Cosmos DB RBAC を用いて操作することができます。<br>一方で、管理プレーンでの操作は、Azure RBAC やキーを用いて操作可能です。</p>
+<div class="alert is-warning"><p class="alert-title">警告</p><p>間違いやすい点として、”Azure RBAC” と “Azure Cosmos DB RBAC” は確認方法やロールのアサイン方法が異なります。</p><p>例として、”Azure RBAC” はポータル画面から確認いただくことができますが “Azure Cosmos DB RBAC” はポータル上から確認することはできません。</p></div>
+<p>そのため下記のスクリーンから確認できるロールは “Azure RBAC” に関するロールとなります。<br><img src="/blog/CosmosDB/%E3%82%BB%E3%82%AD%E3%83%A5%E3%83%AA%E3%83%86%E3%82%A3/Rolebase-access-control/IAMscreen.png"></p>
+<p>“Azure Cosmos DB RBAC” のロールを確認する場合は、PowerShell や CLI をご利用いただく必要がございます。</p>
+<p>PowerShell を用いた “Azure Cosmos DB RBAC” のロール確認例</p>
+<p><img src="/blog/CosmosDB/%E3%82%BB%E3%82%AD%E3%83%A5%E3%83%AA%E3%83%86%E3%82%A3/Rolebase-access-control/AzureCosmosRBACList.png"></p>
+<h2 id="アカウント管理操作に対する-Azure-RBAC-によるアクセス制御"><a href="#アカウント管理操作に対する-Azure-RBAC-によるアクセス制御" class="headerlink" title="アカウント管理操作に対する Azure RBAC によるアクセス制御"></a>アカウント管理操作に対する Azure RBAC によるアクセス制御</h2><p>Azure RBAC にて、管理プレーンを経由する操作のアクセス制御を行う場合はポータル画面の アクセス制御 (IAM) ペインを使用することで割り当てを行うことができます。<br>ロールは、Active Directory 内のユーザー、グループ、サービス プリンシパル、およびマネージド ID に割り当てることができます。<br>詳細については下記の公開情報をご確認ください。<br><a target="_blank" rel="noopener" href="https://learn.microsoft.com/ja-jp/azure/cosmos-db/role-based-access-control#identity-and-access-management-iam">ID およびアクセス管理 (IAM)</a></p>
+<div class="alert is-info"><p class="alert-title">Note</p><p>Azure RBAC で、データプレーンに対する詳細な操作が制御できないのであれば、ポータルのデータ エクスプローラーから Cosmos DB のデータにアクセスを行う際は、どのような権限でアクセス管理がされているのか疑問に思う方もいらっしゃるかと思います。</p><p>データ エクスプローラーを経由したデータへのアクセスは、キーを用いてアクセスが行われております。</p><p>具体的には、ポータルのデータ エクスプローラを使用するユーザーが、Microsoft.DocumentDB/databaseAccounts/listKeys/action や Microsoft.DocumentDB/databaseAccounts/readonlykeys/action の権限があるかを確認し、データプレーンへのアクセス可否が決定します。なお、この権限は、キーを用いる操作全般に影響するため、権限から取り除くと、管理プレーンに対する種々の操作にも制限が発生します。</p></div>
+<h2 id="データ操作に対する-Azure-Cosmos-DB-RBAC-によるアクセス制御"><a href="#データ操作に対する-Azure-Cosmos-DB-RBAC-によるアクセス制御" class="headerlink" title="データ操作に対する Azure Cosmos DB RBAC によるアクセス制御"></a>データ操作に対する Azure Cosmos DB RBAC によるアクセス制御</h2><p>Cosmos DB のデータ操作を RBAC にてアクセス制御を行いたい場合は、Azure Cosmos DB RBAC を使用する必要があります。<br>Azure Cosmos DB RBAC は現在 (2023 年 7 月時点)、ポータル画面での管理を行うことができません。<br>そのため、PowerShell もしくは Azure CLI をご利用いただく必要があります。</p>
+<p>なお、既定のロールとして、読み込み専用の CosmosDB 組み込みデータ リーダー ロールと、書き込みを含めた Cosmos DB 組み込みデータ共同作成者ロールが用意されております。</p>
+<p>組み込みロールに含まれるアクションの詳細につきましては下記の公開情報をご参考ください。<br><img src="/blog/CosmosDB/%E3%82%BB%E3%82%AD%E3%83%A5%E3%83%AA%E3%83%86%E3%82%A3/Rolebase-access-control/buildinrole.png"><br><a target="_blank" rel="noopener" href="https://learn.microsoft.com/ja-jp/azure/cosmos-db/how-to-setup-rbac#built-in-role-definitions">組み込みロールの定義</a></p>
+<blockquote>
+<p>[!NOTE]<br>具体的にデータ操作に<strong>含まれない</strong>操作としては下記がございます。<br>これらは  管理プレーン (コントロールプレーン) 操作となります。</p>
+<ul>
+<li>データベースの作成、置換、削除</li>
+<li>コンテナーの作成、置換、削除</li>
+<li>コンテナー スループットの読み取り/置換</li>
+<li>ストアド プロシージャの作成、置換、削除、読み取り</li>
+<li>トリガーの作成、置換、削除、読み取り</li>
+<li>ユーザー定義関数の作成、置換、削除、読み取り<br>上記の操作は Azure Cosmos DB RBAC では<strong>扱われません。</strong></li>
+</ul>
+</blockquote>
+<p>なお、データプレーンのロールの割り当て手順概要は下記となります。<strong>すべての手順は Azure CLI もしくは PowerShell を使用する必要があります。</strong></p>
+<p>*下記では PowerShell を使用しております。</p>
+<ol>
+<li>データ管理要件に併せて、カスタム ロールを作成します。(既定のロールを利用する場合、この手順はスキップ可能です。)</li>
+</ol>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$resourceGroupName</span> = <span class="string">&quot;&lt;myResourceGroup&gt;&quot;</span></span><br><span class="line"><span class="variable">$accountName</span> = <span class="string">&quot;&lt;myCosmosAccount&gt;&quot;</span></span><br><span class="line"><span class="built_in">New-AzCosmosDBSqlRoleDefinition</span> <span class="literal">-AccountName</span> <span class="variable">$accountName</span> `</span><br><span class="line">    <span class="literal">-ResourceGroupName</span> <span class="variable">$resourceGroupName</span> `</span><br><span class="line">    <span class="literal">-Type</span> CustomRole <span class="literal">-RoleName</span> MyReadOnlyRole `</span><br><span class="line">    <span class="literal">-DataAction</span> <span class="selector-tag">@</span>( `</span><br><span class="line">        <span class="string">&#x27;Microsoft.DocumentDB/databaseAccounts/readMetadata&#x27;</span>,</span><br><span class="line">        <span class="string">&#x27;Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers/items/read&#x27;</span>, `</span><br><span class="line">        <span class="string">&#x27;Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers/executeQuery&#x27;</span>, `</span><br><span class="line">        <span class="string">&#x27;Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers/readChangeFeed&#x27;</span>) `</span><br><span class="line">    <span class="literal">-AssignableScope</span> <span class="string">&quot;/&quot;</span></span><br></pre></td></tr></table></figure>
+<p>(実行例)<br><img src="/blog/CosmosDB/%E3%82%BB%E3%82%AD%E3%83%A5%E3%83%AA%E3%83%86%E3%82%A3/Rolebase-access-control/customerrolecreate.png"></p>
+<ol start="2">
+<li>ロールをプリンシパル ID に割り当てます。<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$resourceGroupName</span> = <span class="string">&quot;&lt;myResourceGroup&gt;&quot;</span></span><br><span class="line"><span class="variable">$accountName</span> = <span class="string">&quot;&lt;myCosmosAccount&gt;&quot;</span></span><br><span class="line"><span class="variable">$readOnlyRoleDefinitionId</span> = <span class="string">&quot;&lt;roleDefinitionId&gt;&quot;</span> </span><br><span class="line"></span><br><span class="line"><span class="variable">$principalId</span> = <span class="string">&quot;&lt;aadPrincipalId&gt;&quot;</span></span><br><span class="line"><span class="built_in">New-AzCosmosDBSqlRoleAssignment</span> <span class="literal">-AccountName</span> <span class="variable">$accountName</span> `</span><br><span class="line">    <span class="literal">-ResourceGroupName</span> <span class="variable">$resourceGroupName</span> `</span><br><span class="line">    <span class="literal">-RoleDefinitionId</span> <span class="variable">$readOnlyRoleDefinitionId</span> `</span><br><span class="line">    <span class="literal">-Scope</span> <span class="string">&quot;/&quot;</span> `</span><br><span class="line">    <span class="literal">-PrincipalId</span> <span class="variable">$principalId</span></span><br></pre></td></tr></table></figure>
+プリンシパル ID は下記の画面から確認可能です。<br>(ユーザーの場合)<br><img src="/blog/CosmosDB/%E3%82%BB%E3%82%AD%E3%83%A5%E3%83%AA%E3%83%86%E3%82%A3/Rolebase-access-control/userprincipal.png"></li>
+</ol>
+<p>(アプリケーションの場合)<br><img src="/blog/CosmosDB/%E3%82%BB%E3%82%AD%E3%83%A5%E3%83%AA%E3%83%86%E3%82%A3/Rolebase-access-control/serviceprincipal.png"></p>
+<p>(実行例)<br><img src="/blog/CosmosDB/%E3%82%BB%E3%82%AD%E3%83%A5%E3%83%AA%E3%83%86%E3%82%A3/Rolebase-access-control/roleassignment.png"></p>
+<ol>
+<li>ロールが割り当てられていることが確認できます。 <figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$resourceGroupName</span> = <span class="string">&quot;&lt;myResourceGroup&gt;&quot;</span></span><br><span class="line"><span class="variable">$accountName</span> = <span class="string">&quot;&lt;myCosmosAccount&gt;&quot;</span></span><br><span class="line"><span class="built_in">Get-AzCosmosDBSqlRoleAssignment</span> <span class="literal">-ResourceGroupName</span>  <span class="variable">$resourceGroupName</span> `</span><br><span class="line">   <span class="literal">-AccountName</span> <span class="variable">$accountName</span></span><br></pre></td></tr></table></figure>
+(実行例)<br><img src="/blog/CosmosDB/%E3%82%BB%E3%82%AD%E3%83%A5%E3%83%AA%E3%83%86%E3%82%A3/Rolebase-access-control/roleassignmentcheck.png"></li>
+</ol>
+<h2 id="まとめ"><a href="#まとめ" class="headerlink" title="まとめ"></a>まとめ</h2><p>最後までお読みいただきありがとうございました。この記事では Cosmos DB for NoSQL のロールベースのアクセス制御についてご案内させていただきました。<br>Cosmos DB でのロールベース制御のご参考になりましたら幸いです。<br>ご不明な点がございましたら、お気軽に上記サポート窓口までお問い合わせください。よろしくお願いいたします。</p>
+
+      
+      
+        <div class="article-disclaimer">
+        
+          <p>※本情報の内容（添付文書、リンク先などを含む）は、作成日時点でのものであり、予告なく変更される場合があります。</p>
+        
+        </div>
+      
+    </div>
+    <footer class="article-footer">
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="../../../tags/NoSQL/" rel="tag">NoSQL</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="../../../tags/%E3%83%87%E3%83%BC%E3%82%BF%E3%83%97%E3%83%AC%E3%83%BC%E3%83%B3/" rel="tag">データプレーン</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="../../../tags/%E7%AE%A1%E7%90%86%E3%83%97%E3%83%AC%E3%83%BC%E3%83%B3/" rel="tag">管理プレーン</a></li></ul>
+
+        
+        <a href="https://github.com/jpcosmosdb/blog/edit/main/articles/CosmosDB/セキュリティ/Rolebase-access-control.md" class="article-github-edit-link" target="_blank" rel="noopener noreferrer">GitHub で編集</a>
+        
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+  
+    <a href="../../HowTo/bulkupdate-logicapp/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">前の記事</strong>
+      <div class="article-nav-title">Cosmos DB のデータを Logic Apps を用いて一括更新する方法</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">カテゴリ</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="../../../categories/Cosmos-DB/">Cosmos DB</a><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="../../../categories/Cosmos-DB/Availability/">Availability</a></li><li class="category-list-item"><a class="category-list-link" href="../../../categories/Cosmos-DB/HowTo/">HowTo</a></li><li class="category-list-item"><a class="category-list-link" href="../../../categories/Cosmos-DB/%E3%82%BB%E3%82%AD%E3%83%A5%E3%83%AA%E3%83%86%E3%82%A3/">セキュリティ</a></li><li class="category-list-item"><a class="category-list-link" href="../../../categories/Cosmos-DB/%E3%83%88%E3%83%A9%E3%83%96%E3%83%AB%E3%82%B7%E3%83%A5%E3%83%BC%E3%83%86%E3%82%A3%E3%83%B3%E3%82%B0/">トラブルシューティング</a></li><li class="category-list-item"><a class="category-list-link" href="../../../categories/Cosmos-DB/%E6%83%85%E5%A0%B1%E6%8E%A1%E5%8F%96/">情報採取</a></li></ul></li><li class="category-list-item"><a class="category-list-link" href="../../../categories/Information/">Information</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">最近の投稿</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="">NoSQL API Cosmos DB におけるロールベースのアクセス制御について</a>
+          </li>
+        
+          <li>
+            <a href="../../HowTo/bulkupdate-logicapp/">Cosmos DB のデータを Logic Apps を用いて一括更新する方法</a>
+          </li>
+        
+          <li>
+            <a href="../../Availability/failover/">Cosmos DB における RTO, RPO, フェールオーバーの考え方</a>
+          </li>
+        
+          <li>
+            <a href="../../%E3%83%88%E3%83%A9%E3%83%96%E3%83%AB%E3%82%B7%E3%83%A5%E3%83%BC%E3%83%86%E3%82%A3%E3%83%B3%E3%82%B0/Cosmos-DB-initialtsg/">Cosmos DB に繋がらない場合</a>
+          </li>
+        
+          <li>
+            <a href="../../../Information/welcome/">Azure Cosmos DB チームのブログを始めました！</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">タグ</h3>
+    <div class="widget">
+      <!-- <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="../../../tags/NET-SDK/" rel="tag">.NET SDK</a></li><li class="tag-list-item"><a class="tag-list-link" href="../../../tags/Availavility/" rel="tag">Availavility</a></li><li class="tag-list-item"><a class="tag-list-link" href="../../../tags/Bulk-Update/" rel="tag">Bulk Update</a></li><li class="tag-list-item"><a class="tag-list-link" href="../../../tags/Cassandra/" rel="tag">Cassandra</a></li><li class="tag-list-item"><a class="tag-list-link" href="../../../tags/Cosmos-DB/" rel="tag">Cosmos DB</a></li><li class="tag-list-item"><a class="tag-list-link" href="../../../tags/Diagnostics/" rel="tag">Diagnostics</a></li><li class="tag-list-item"><a class="tag-list-link" href="../../../tags/Durability/" rel="tag">Durability</a></li><li class="tag-list-item"><a class="tag-list-link" href="../../../tags/Example/" rel="tag">Example</a></li><li class="tag-list-item"><a class="tag-list-link" href="../../../tags/Failover/" rel="tag">Failover</a></li><li class="tag-list-item"><a class="tag-list-link" href="../../../tags/Greetings/" rel="tag">Greetings</a></li><li class="tag-list-item"><a class="tag-list-link" href="../../../tags/Gremlin/" rel="tag">Gremlin</a></li><li class="tag-list-item"><a class="tag-list-link" href="../../../tags/Java-SDK/" rel="tag">Java SDK</a></li><li class="tag-list-item"><a class="tag-list-link" href="../../../tags/Logic-Apps/" rel="tag">Logic Apps</a></li><li class="tag-list-item"><a class="tag-list-link" href="../../../tags/MongoDB/" rel="tag">MongoDB</a></li><li class="tag-list-item"><a class="tag-list-link" href="../../../tags/NoSQL/" rel="tag">NoSQL</a></li><li class="tag-list-item"><a class="tag-list-link" href="../../../tags/NoSQL-API/" rel="tag">NoSQL API</a></li><li class="tag-list-item"><a class="tag-list-link" href="../../../tags/Table/" rel="tag">Table</a></li><li class="tag-list-item"><a class="tag-list-link" href="../../../tags/Troubleshooting/" rel="tag">Troubleshooting</a></li><li class="tag-list-item"><a class="tag-list-link" href="../../../tags/%E3%83%87%E3%83%BC%E3%82%BF%E3%83%97%E3%83%AC%E3%83%BC%E3%83%B3/" rel="tag">データプレーン</a></li><li class="tag-list-item"><a class="tag-list-link" href="../../../tags/%E7%AE%A1%E7%90%86%E3%83%97%E3%83%AC%E3%83%BC%E3%83%B3/" rel="tag">管理プレーン</a></li></ul>  -->
+      
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="../../../tags/NET-SDK/" rel="tag">.NET SDK</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../tags/Availavility/" rel="tag">Availavility</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../tags/Bulk-Update/" rel="tag">Bulk Update</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../tags/Cassandra/" rel="tag">Cassandra</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../tags/Cosmos-DB/" rel="tag">Cosmos DB</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../tags/Diagnostics/" rel="tag">Diagnostics</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../tags/Durability/" rel="tag">Durability</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../tags/Example/" rel="tag">Example</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../tags/Failover/" rel="tag">Failover</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../tags/Greetings/" rel="tag">Greetings</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../tags/Gremlin/" rel="tag">Gremlin</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../tags/Java-SDK/" rel="tag">Java SDK</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../tags/Logic-Apps/" rel="tag">Logic Apps</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../tags/MongoDB/" rel="tag">MongoDB</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../tags/NoSQL/" rel="tag">NoSQL</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../tags/NoSQL-API/" rel="tag">NoSQL API</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../tags/Table/" rel="tag">Table</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../tags/Troubleshooting/" rel="tag">Troubleshooting</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../tags/%E3%83%87%E3%83%BC%E3%82%BF%E3%83%97%E3%83%AC%E3%83%BC%E3%83%B3/" rel="tag">データプレーン</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="../../../tags/%E7%AE%A1%E7%90%86%E3%83%97%E3%83%AC%E3%83%BC%E3%83%B3/" rel="tag">管理プレーン</a><span class="tag-list-count">1</span></li></ul> 
+      <!-- <ul class="tag-list"></ul> -->
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">アーカイブ</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="../../../archives/2023/07/">2023 / 07</a></li><li class="archive-list-item"><a class="archive-list-link" href="../../../archives/2023/05/">2023 / 05</a></li><li class="archive-list-item"><a class="archive-list-link" href="../../../archives/2023/03/">2023 / 03</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">タグクラウド</h3>
+    <div class="widget tagcloud">
+      <a href="../../../tags/NET-SDK/" style="font-size: 10px;">.NET SDK</a> <a href="../../../tags/Availavility/" style="font-size: 10px;">Availavility</a> <a href="../../../tags/Bulk-Update/" style="font-size: 10px;">Bulk Update</a> <a href="../../../tags/Cassandra/" style="font-size: 15px;">Cassandra</a> <a href="../../../tags/Cosmos-DB/" style="font-size: 10px;">Cosmos DB</a> <a href="../../../tags/Diagnostics/" style="font-size: 10px;">Diagnostics</a> <a href="../../../tags/Durability/" style="font-size: 10px;">Durability</a> <a href="../../../tags/Example/" style="font-size: 10px;">Example</a> <a href="../../../tags/Failover/" style="font-size: 10px;">Failover</a> <a href="../../../tags/Greetings/" style="font-size: 10px;">Greetings</a> <a href="../../../tags/Gremlin/" style="font-size: 15px;">Gremlin</a> <a href="../../../tags/Java-SDK/" style="font-size: 10px;">Java SDK</a> <a href="../../../tags/Logic-Apps/" style="font-size: 10px;">Logic Apps</a> <a href="../../../tags/MongoDB/" style="font-size: 15px;">MongoDB</a> <a href="../../../tags/NoSQL/" style="font-size: 20px;">NoSQL</a> <a href="../../../tags/NoSQL-API/" style="font-size: 10px;">NoSQL API</a> <a href="../../../tags/Table/" style="font-size: 15px;">Table</a> <a href="../../../tags/Troubleshooting/" style="font-size: 10px;">Troubleshooting</a> <a href="../../../tags/%E3%83%87%E3%83%BC%E3%82%BF%E3%83%97%E3%83%AC%E3%83%BC%E3%83%B3/" style="font-size: 10px;">データプレーン</a> <a href="../../../tags/%E7%AE%A1%E7%90%86%E3%83%97%E3%83%AC%E3%83%BC%E3%83%B3/" style="font-size: 10px;">管理プレーン</a>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2023 Azure Cosmos DB CSS Japan<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="../../../index.html" class="mobile-nav-link">Home</a>
+  
+    <a href="../../../archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+<script src="../../../js/script.js"></script>
+
+
+
+
+  </div>
+</body>
+</html>
