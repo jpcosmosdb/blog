@@ -113,8 +113,8 @@ New-AzCosmosDBSqlRoleAssignment -AccountName $accountName `
 ![](./Rolebase-access-control/userprincipal.png)
 
 (アプリケーションの場合)
-![](2023-07-31-12-14-45.png)
 ![](./Rolebase-access-control/serviceprincipal.png)
+
 (実行例)
 ![](./Rolebase-access-control/roleassignment.png)
 
