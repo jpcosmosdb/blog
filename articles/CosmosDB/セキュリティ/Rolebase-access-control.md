@@ -73,7 +73,8 @@ Azure Cosmos DB RBAC は現在 (2023 年 7 月時点)、ポータル画面での
 
 なお、ロールの割り当て手順概要は下記となります。**すべての手順は Azure CLI もしくは PowerShell を使用する必要があります。**
 *下記では PowerShell を使用しております。
-1. データ管理要件に併せて、カスタム ロールを作成します。(デフォルトのロールを利用する場合、この手順はスキップ可能です。)
+1. データ管理要件に併せて、カスタム ロールを作成します。(既定のロールを利用する場合、この手順はスキップ可能です。)
+
 ```PowerShell
 $resourceGroupName = "<myResourceGroup>"
 $accountName = "<myCosmosAccount>"
