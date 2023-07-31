@@ -33,7 +33,8 @@ Cosmos DB に対する様々な操作は、データプレーンもしくは管�
 
 "Azure Cosmos DB RBAC" のロールを確認する場合は、Powershell や CLI をご利用いただく必要がございます。
 
-Powershell を用いた "Azure Cosmos DB RBAC" のロール確認例
+PowerShell を用いた "Azure Cosmos DB RBAC" のロール確認例
+
 ![](./Rolebase-access-control/AzureCosmosRBACList.png)
 
 ## アカウント管理操作に対する Azure RBAC によるアクセス制御
