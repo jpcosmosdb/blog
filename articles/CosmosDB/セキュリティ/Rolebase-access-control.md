@@ -21,8 +21,8 @@ Cosmos DB に対する様々な操作は、データプレーンもしくは管�
 
 一方で、Cosmos DB のアカウント自体に対する変更 (アカウント自体の作成や削除、ファイアウォールの設定、アカウントのグローバル分散等) は管理プレーンでの操作となります。
 
-このうち管理プレーンでの操作は、Azure RBAC やキーを用いて操作可能です。
-一方で、データプレーンに対する操作はキー、リソース トークン、Azure Cosmos DB RBAC を用いて操作することができます。
+このうちデータプレーンに対する操作はキー、リソース トークン、Azure Cosmos DB RBAC を用いて操作することができます。
+一方で、管理プレーンでの操作は、Azure RBAC やキーを用いて操作可能です。
 
 > [!WARNING]
 > 間違いやすい点として、"Azure RBAC" と "Azure Cosmos DB RBAC" は確認方法やロールのアサイン方法が異なります。
@@ -95,12 +95,12 @@ New-AzCosmosDBSqlRoleDefinition -AccountName $accountName `
 (実行例)
 ![](./Rolebase-access-control/customerrolecreate.png)
 
-1. ロールをプリンシパル ID に割り当てます。
+2. ロールをプリンシパル ID に割り当てます。
 ```PowerShell
 $resourceGroupName = "<myResourceGroup>"
 $accountName = "<myCosmosAccount>"
 $readOnlyRoleDefinitionId = "<roleDefinitionId>" 
-# For Service Principals make sure to use the Object ID as found in the Enterprise applications section of the Azure Active Directory portal blade.
+# サービス プリンシパルを使用する場合 Azure Active Directory ポータル ブレードのエンタープライズ アプリケーションの オブジェクト ID をご利用ください。
 $principalId = "<aadPrincipalId>"
 New-AzCosmosDBSqlRoleAssignment -AccountName $accountName `
     -ResourceGroupName $resourceGroupName `
@@ -108,6 +108,13 @@ New-AzCosmosDBSqlRoleAssignment -AccountName $accountName `
     -Scope "/" `
     -PrincipalId $principalId
 ```
+プリンシパル ID は下記の画面から確認可能です。
+(ユーザーの場合)
+![](./Rolebase-access-control/userprincipal.png)
+
+(アプリケーションの場合)
+![](2023-07-31-12-14-45.png)
+![](./Rolebase-access-control/serviceprincipal.png)
 (実行例)
 ![](./Rolebase-access-control/roleassignment.png)
 
